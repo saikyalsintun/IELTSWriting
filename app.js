@@ -1,22 +1,42 @@
 // ============================================================
-// IELTS WRITING - APP.JS
+// IELTS WRITING PRACTICE - APP.JS
 // ============================================================
-// No AI grading.
+// NO AI GRADING
 //
-// Student submission is saved to Google Sheets:
+// Google Sheet columns:
 //
 // Username | Task1 | Task2 | Score | Band | Writing1 | Writing2
 //
-// Score and Band are left blank for manual marking.
+// The website sends only:
+//
+// Username
+// Writing1
+// Writing2
+//
+// Task1, Task2, Score and Band remain blank.
+//
 // ============================================================
 
 
 // ============================================================
-// API CONFIGURATION
+// GOOGLE APPS SCRIPT API
 // ============================================================
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbwPNTZ7fv5bkv8vcSOdhZARB33C43AI-ezSgLpWEJLFtf2ewnMcKnMXuBGrecQWDD7I3Q/exec";
+
+
+// ============================================================
+// TEST CONFIGURATION
+// ============================================================
+
+const TOTAL_TESTS = 8;
+
+const TEST_DURATION_SECONDS = 60 * 60;
+
+const TASK1_MIN_WORDS = 150;
+
+const TASK2_MIN_WORDS = 250;
 
 
 // ============================================================
@@ -66,9 +86,7 @@ function initializeWritingPage() {
 
   populateTestList();
 
-  showScreen(
-    "setupScreen"
-  );
+  showScreen("setupScreen");
 
 }
 
@@ -84,9 +102,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const startButton =
-    document.getElementById(
-      "startTestBtn"
-    );
+    document.getElementById("startTestBtn");
 
   if (startButton) {
 
@@ -103,9 +119,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const submitButton =
-    document.getElementById(
-      "submitTestBtn"
-    );
+    document.getElementById("submitTestBtn");
 
   if (submitButton) {
 
@@ -126,9 +140,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const backButton =
-    document.getElementById(
-      "backBtn"
-    );
+    document.getElementById("backBtn");
 
   if (backButton) {
 
@@ -145,9 +157,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const task1Tab =
-    document.getElementById(
-      "task1Tab"
-    );
+    document.getElementById("task1Tab");
 
   if (task1Tab) {
 
@@ -168,9 +178,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const task2Tab =
-    document.getElementById(
-      "task2Tab"
-    );
+    document.getElementById("task2Tab");
 
   if (task2Tab) {
 
@@ -191,9 +199,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const task1Answer =
-    document.getElementById(
-      "task1Answer"
-    );
+    document.getElementById("task1Answer");
 
   if (task1Answer) {
 
@@ -214,9 +220,7 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const task2Answer =
-    document.getElementById(
-      "task2Answer"
-    );
+    document.getElementById("task2Answer");
 
   if (task2Answer) {
 
@@ -241,10 +245,7 @@ function setupEventListeners() {
 function loadUsername() {
 
   const usernameInput =
-    document.getElementById(
-      "username"
-    );
-
+    document.getElementById("username");
 
   if (!usernameInput) {
     return;
@@ -278,10 +279,13 @@ function loadUsername() {
       );
 
 
-    if (value) {
+    if (
+      value &&
+      value.trim()
+    ) {
 
       username =
-        value;
+        value.trim();
 
       break;
 
@@ -309,18 +313,16 @@ function loadUsername() {
 
 function getUsername() {
 
-  const input =
-    document.getElementById(
-      "username"
-    );
+  const usernameInput =
+    document.getElementById("username");
 
 
   if (
-    input &&
-    input.value.trim()
+    usernameInput &&
+    usernameInput.value.trim()
   ) {
 
-    return input.value.trim();
+    return usernameInput.value.trim();
 
   }
 
@@ -349,7 +351,10 @@ function getUsername() {
       );
 
 
-    if (value) {
+    if (
+      value &&
+      value.trim()
+    ) {
 
       return value.trim();
 
@@ -367,16 +372,19 @@ function getUsername() {
 // POPULATE TEST LIST
 // ============================================================
 //
-// Currently supports Test1.json through Test8.json.
+// Currently:
+//
+// Test1.json
+// Test2.json
+// ...
+// Test8.json
 //
 // ============================================================
 
 function populateTestList() {
 
   const select =
-    document.getElementById(
-      "testSelect"
-    );
+    document.getElementById("testSelect");
 
 
   if (!select) {
@@ -389,18 +397,16 @@ function populateTestList() {
 
   for (
     let i = 1;
-    i <= 8;
+    i <= TOTAL_TESTS;
     i++
   ) {
 
     const option =
-      document.createElement(
-        "option"
-      );
+      document.createElement("option");
 
 
     option.value =
-      i;
+      String(i);
 
 
     option.textContent =
@@ -417,7 +423,7 @@ function populateTestList() {
 
 
 // ============================================================
-// LOAD WRITING JSON
+// LOAD WRITING TEST JSON
 // ============================================================
 
 async function loadWritingTest(
@@ -467,9 +473,7 @@ async function startSelectedTest() {
 
 
   const select =
-    document.getElementById(
-      "testSelect"
-    );
+    document.getElementById("testSelect");
 
 
   if (!select) {
@@ -484,9 +488,7 @@ async function startSelectedTest() {
 
 
   const testNumber =
-    Number(
-      select.value
-    );
+    Number(select.value);
 
 
   if (
@@ -569,7 +571,7 @@ async function startSelectedTest() {
 
     showError(
       error.message ||
-      "Unable to load the test."
+      "Unable to load the Writing test."
     );
 
 
@@ -589,6 +591,15 @@ async function startSelectedTest() {
 function extractQuestions(
   test
 ) {
+
+  if (!test) {
+
+    throw new Error(
+      "Writing test data is empty."
+    );
+
+  }
+
 
   task1Question =
     extractQuestion(
@@ -641,6 +652,10 @@ function extractQuestion(
   }
 
 
+  // ----------------------------------------------------------
+  // If task itself is a string
+  // ----------------------------------------------------------
+
   if (
     typeof task ===
     "string"
@@ -650,6 +665,10 @@ function extractQuestion(
 
   }
 
+
+  // ----------------------------------------------------------
+  // If task is an object
+  // ----------------------------------------------------------
 
   if (
     typeof task ===
@@ -673,10 +692,12 @@ function extractQuestion(
       i++
     ) {
 
+      const field =
+        possibleFields[i];
+
+
       const value =
-        task[
-          possibleFields[i]
-        ];
+        task[field];
 
 
       if (
@@ -750,6 +771,10 @@ function displayTest() {
     );
 
 
+  // ----------------------------------------------------------
+  // Task 1 question
+  // ----------------------------------------------------------
+
   if (task1Element) {
 
     task1Element.textContent =
@@ -758,6 +783,10 @@ function displayTest() {
   }
 
 
+  // ----------------------------------------------------------
+  // Task 2 question
+  // ----------------------------------------------------------
+
   if (task2Element) {
 
     task2Element.textContent =
@@ -765,6 +794,10 @@ function displayTest() {
 
   }
 
+
+  // ----------------------------------------------------------
+  // Task 1 image
+  // ----------------------------------------------------------
 
   displayTask1Image();
 
@@ -787,14 +820,16 @@ function displayTest() {
 
   if (task1Answer) {
 
-    task1Answer.value = "";
+    task1Answer.value =
+      "";
 
   }
 
 
   if (task2Answer) {
 
-    task2Answer.value = "";
+    task2Answer.value =
+      "";
 
   }
 
@@ -805,7 +840,7 @@ function displayTest() {
 
 
   // ----------------------------------------------------------
-  // Test Title
+  // Test title
   // ----------------------------------------------------------
 
   const title =
@@ -842,7 +877,10 @@ function displayTask1Image() {
   }
 
 
-  // Remove previous image
+  // ----------------------------------------------------------
+  // Remove any previously created image
+  // ----------------------------------------------------------
+
   const oldImage =
     document.getElementById(
       "task1QuestionImage"
@@ -856,15 +894,21 @@ function displayTask1Image() {
   }
 
 
+  // ----------------------------------------------------------
+  // No image
+  // ----------------------------------------------------------
+
   if (!task1Image) {
     return;
   }
 
 
+  // ----------------------------------------------------------
+  // Create image
+  // ----------------------------------------------------------
+
   const image =
-    document.createElement(
-      "img"
-    );
+    document.createElement("img");
 
 
   image.id =
@@ -876,7 +920,7 @@ function displayTask1Image() {
 
 
   image.alt =
-    "IELTS Writing Task 1 image";
+    "IELTS Writing Task 1 chart or image";
 
 
   image.style.display =
@@ -885,6 +929,10 @@ function displayTask1Image() {
 
   image.style.maxWidth =
     "100%";
+
+
+  image.style.width =
+    "auto";
 
 
   image.style.height =
@@ -917,6 +965,10 @@ function displayTask1Image() {
     };
 
 
+  // ----------------------------------------------------------
+  // Insert image after question
+  // ----------------------------------------------------------
+
   questionElement.insertAdjacentElement(
     "afterend",
     image
@@ -926,7 +978,7 @@ function displayTask1Image() {
 
 
 // ============================================================
-// SWITCH TASK
+// SWITCH BETWEEN TASK 1 AND TASK 2
 // ============================================================
 
 function switchTask(
@@ -957,6 +1009,10 @@ function switchTask(
     );
 
 
+  // ----------------------------------------------------------
+  // Task 1
+  // ----------------------------------------------------------
+
   if (task1Panel) {
 
     task1Panel.style.display =
@@ -967,6 +1023,10 @@ function switchTask(
   }
 
 
+  // ----------------------------------------------------------
+  // Task 2
+  // ----------------------------------------------------------
+
   if (task2Panel) {
 
     task2Panel.style.display =
@@ -976,6 +1036,10 @@ function switchTask(
 
   }
 
+
+  // ----------------------------------------------------------
+  // Tabs
+  // ----------------------------------------------------------
 
   if (task1Tab) {
 
@@ -1016,8 +1080,11 @@ function countWords(
     .trim()
     .split(/\s+/)
     .filter(
-      word =>
-        word.length > 0
+      function (word) {
+
+        return word.length > 0;
+
+      }
     )
     .length;
 
@@ -1066,8 +1133,8 @@ function updateWordCount(
 
   const minimum =
     taskNumber === 1
-      ? 150
-      : 250;
+      ? TASK1_MIN_WORDS
+      : TASK2_MIN_WORDS;
 
 
   counter.classList.toggle(
@@ -1088,9 +1155,6 @@ function updateWordCount(
 // ============================================================
 // START TIMER
 // ============================================================
-//
-// IELTS Writing = 60 minutes.
-// ============================================================
 
 function startTimer() {
 
@@ -1101,18 +1165,19 @@ function startTimer() {
     Date.now();
 
 
-  const duration =
-    60 * 60;
-
-
   updateTimer(
-    duration
+    TEST_DURATION_SECONDS
   );
 
 
   timerInterval =
     setInterval(
       function () {
+
+        if (!testStartTime) {
+          return;
+        }
+
 
         const elapsed =
           Math.floor(
@@ -1126,7 +1191,7 @@ function startTimer() {
         const remaining =
           Math.max(
             0,
-            duration -
+            TEST_DURATION_SECONDS -
             elapsed
           );
 
@@ -1141,6 +1206,7 @@ function startTimer() {
         ) {
 
           stopTimer();
+
 
           autoSubmitWritingTest();
 
@@ -1224,13 +1290,13 @@ function stopTimer() {
 
 
 // ============================================================
-// AUTO SUBMIT
+// AUTOMATIC SUBMISSION
 // ============================================================
 
 async function autoSubmitWritingTest() {
 
   alert(
-    "Time is up. Your Writing test will be submitted."
+    "Time is up. Your Writing test will be submitted automatically."
   );
 
 
@@ -1245,31 +1311,38 @@ async function autoSubmitWritingTest() {
 // SUBMIT WRITING TEST
 // ============================================================
 //
-// No AI grading.
+// IMPORTANT:
 //
-// The answers are sent to Apps Script.
+// This function DOES NOT call:
 //
-// Apps Script stores:
+// scoreWriting
+// OpenAI
+// AI grading
 //
-// Username
-// Task1
-// Task2
-// Score
-// Band
-// Writing1
-// Writing2
+// It only calls:
 //
-// Score and Band remain blank.
+// saveWriting
+//
 // ============================================================
 
 async function submitWritingTest(
   automatic = false
 ) {
 
+  // ----------------------------------------------------------
+  // Prevent double submission
+  // ----------------------------------------------------------
+
   if (isSubmitting) {
+
     return;
+
   }
 
+
+  // ----------------------------------------------------------
+  // Get username
+  // ----------------------------------------------------------
 
   const username =
     getUsername();
@@ -1285,6 +1358,10 @@ async function submitWritingTest(
 
   }
 
+
+  // ----------------------------------------------------------
+  // Get answer fields
+  // ----------------------------------------------------------
 
   const task1AnswerElement =
     document.getElementById(
@@ -1312,6 +1389,10 @@ async function submitWritingTest(
   }
 
 
+  // ----------------------------------------------------------
+  // Read answers
+  // ----------------------------------------------------------
+
   const task1Answer =
     task1AnswerElement.value.trim();
 
@@ -1319,6 +1400,10 @@ async function submitWritingTest(
   const task2Answer =
     task2AnswerElement.value.trim();
 
+
+  // ----------------------------------------------------------
+  // Count words
+  // ----------------------------------------------------------
 
   const task1Words =
     countWords(
@@ -1333,7 +1418,7 @@ async function submitWritingTest(
 
 
   // ==========================================================
-  // MANUAL SUBMISSION
+  // MANUAL SUBMISSION CHECKS
   // ==========================================================
 
   if (!automatic) {
@@ -1418,7 +1503,7 @@ async function submitWritingTest(
 
     if (
       task1Answer &&
-      task1Words < 150
+      task1Words < TASK1_MIN_WORDS
     ) {
 
       const confirmed =
@@ -1444,7 +1529,7 @@ async function submitWritingTest(
 
     if (
       task2Answer &&
-      task2Words < 250
+      task2Words < TASK2_MIN_WORDS
     ) {
 
       const confirmed =
@@ -1484,7 +1569,7 @@ async function submitWritingTest(
 
 
   // ==========================================================
-  // SUBMISSION START
+  // BEGIN SUBMISSION
   // ==========================================================
 
   isSubmitting =
@@ -1502,9 +1587,36 @@ async function submitWritingTest(
     );
 
 
-    // --------------------------------------------------------
-    // SEND TO GOOGLE APPS SCRIPT
-    // --------------------------------------------------------
+    // ========================================================
+    // SEND ONLY saveWriting
+    // ========================================================
+
+    const payload = {
+
+      action:
+        "saveWriting",
+
+      data: {
+
+        username:
+          username,
+
+        task1Answer:
+          task1Answer,
+
+        task2Answer:
+          task2Answer
+
+      }
+
+    };
+
+
+    console.log(
+      "Sending Writing submission:",
+      payload
+    );
+
 
     const response =
       await fetch(
@@ -1522,33 +1634,17 @@ async function submitWritingTest(
           },
 
           body:
-            JSON.stringify({
-
-              action:
-                "saveWriting",
-
-              data: {
-
-                username:
-                  username,
-
-                task1Answer:
-                  task1Answer,
-
-                task2Answer:
-                  task2Answer
-
-              }
-
-            })
+            JSON.stringify(
+              payload
+            )
 
         }
       );
 
 
-    // --------------------------------------------------------
-    // HTTP ERROR
-    // --------------------------------------------------------
+    // ========================================================
+    // CHECK HTTP RESPONSE
+    // ========================================================
 
     if (!response.ok) {
 
@@ -1559,33 +1655,73 @@ async function submitWritingTest(
     }
 
 
-    // --------------------------------------------------------
-    // READ JSON RESPONSE
-    // --------------------------------------------------------
+    // ========================================================
+    // READ RESPONSE
+    // ========================================================
 
-    const result =
-      await response.json();
+    const responseText =
+      await response.text();
 
 
-    // --------------------------------------------------------
-    // BACKEND ERROR
-    // --------------------------------------------------------
+    console.log(
+      "Apps Script response:",
+      responseText
+    );
 
-    if (
-      !result.success
-    ) {
+
+    let result;
+
+
+    try {
+
+      result =
+        JSON.parse(
+          responseText
+        );
+
+    } catch (parseError) {
+
+      console.error(
+        "Invalid JSON response:",
+        responseText
+      );
+
 
       throw new Error(
-        result.message ||
-        "Writing submission failed."
+        "The server returned an invalid response."
       );
 
     }
 
 
-    // --------------------------------------------------------
+    // ========================================================
+    // BACKEND ERROR
+    // ========================================================
+
+    if (
+      !result ||
+      result.success !== true
+    ) {
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : "Writing submission failed."
+      );
+
+    }
+
+
+    // ========================================================
     // SUCCESS
-    // --------------------------------------------------------
+    // ========================================================
+
+    console.log(
+      "Writing submission saved successfully:",
+      result
+    );
+
 
     displaySubmissionResult(
       result.result
@@ -1610,7 +1746,10 @@ async function submitWritingTest(
       false;
 
 
-    // Restart timer if submission failed.
+    // --------------------------------------------------------
+    // Restart timer if manual submission failed
+    // --------------------------------------------------------
+
     if (
       testStartTime &&
       !automatic
@@ -1619,6 +1758,8 @@ async function submitWritingTest(
       startTimer();
 
     }
+
+    return;
 
   } finally {
 
@@ -1633,16 +1774,10 @@ async function submitWritingTest(
 // DISPLAY SUBMISSION RESULT
 // ============================================================
 //
-// There is NO automatic score.
+// There is NO AI SCORE.
 //
-// The student sees:
+// Everything is pending until the teacher manually marks it.
 //
-// Task 1: Pending
-// Task 2: Pending
-// Score: Pending
-// Band: Pending
-//
-// The teacher can later enter Score and Band.
 // ============================================================
 
 function displaySubmissionResult(
@@ -1709,6 +1844,16 @@ function displaySubmissionResult(
     "resultScreen"
   );
 
+
+  // ----------------------------------------------------------
+  // Keep result in console for debugging
+  // ----------------------------------------------------------
+
+  console.log(
+    "Submission result:",
+    result
+  );
+
 }
 
 
@@ -1725,7 +1870,9 @@ function backToSetup() {
 
 
   if (!confirmed) {
+
     return;
+
   }
 
 
@@ -1750,6 +1897,14 @@ function backToSetup() {
 
   task1Image =
     "";
+
+
+  testStartTime =
+    null;
+
+
+  isSubmitting =
+    false;
 
 
   showScreen(
@@ -1839,6 +1994,7 @@ function showError(
 ) {
 
   console.error(
+    "Writing website error:",
     message
   );
 
@@ -1889,14 +2045,43 @@ function showError(
 window.startSelectedTest =
   startSelectedTest;
 
+
 window.submitWritingTest =
   submitWritingTest;
+
 
 window.switchTask =
   switchTask;
 
+
 window.backToSetup =
   backToSetup;
 
+
 window.updateWordCount =
   updateWordCount;
+
+
+// ============================================================
+// DEBUG INFORMATION
+// ============================================================
+
+console.log(
+  "IELTS Writing app.js loaded."
+);
+
+
+console.log(
+  "AI grading: DISABLED"
+);
+
+
+console.log(
+  "Backend action: saveWriting"
+);
+
+
+console.log(
+  "API URL:",
+  API_URL
+);
