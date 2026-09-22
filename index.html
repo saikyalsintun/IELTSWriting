@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +27,7 @@
     <div class="header-inner">
 
       <div class="brand">
+
         <div class="brand-title">
           IELTS Writing
         </div>
@@ -35,6 +35,7 @@
         <div class="brand-subtitle">
           Academic Writing Practice
         </div>
+
       </div>
 
       <div class="header-right">
@@ -122,8 +123,7 @@
             Select Test
           </label>
 
-          <select id="testSelect">
-          </select>
+          <select id="testSelect"></select>
 
         </div>
 
@@ -144,6 +144,7 @@
 
           </div>
 
+
           <div class="info-item">
 
             <span class="info-label">
@@ -155,6 +156,7 @@
             </span>
 
           </div>
+
 
           <div class="info-item">
 
@@ -176,6 +178,7 @@
         <button
           id="startTestBtn"
           class="primary-button start-button"
+          type="button"
         >
           Start Test
         </button>
@@ -205,6 +208,7 @@
       style="display:none;"
     >
 
+
       <!-- TEST HEADER -->
 
       <div class="test-header">
@@ -221,14 +225,17 @@
 
         </div>
 
+
         <button
           id="backBtn"
           class="secondary-button"
+          type="button"
         >
           Exit Test
         </button>
 
       </div>
+
 
 
       <!-- TASK TABS -->
@@ -238,6 +245,7 @@
         <button
           id="task1Tab"
           class="task-tab active"
+          type="button"
         >
           Task 1
           <span>
@@ -245,9 +253,11 @@
           </span>
         </button>
 
+
         <button
           id="task2Tab"
           class="task-tab"
+          type="button"
         >
           Task 2
           <span>
@@ -256,6 +266,7 @@
         </button>
 
       </div>
+
 
 
       <!-- ==================================================
@@ -286,6 +297,7 @@
 
             </div>
 
+
             <div class="question-content">
 
               <div class="instruction-box">
@@ -304,6 +316,9 @@
 
               </div>
 
+
+              <!-- TASK 1 QUESTION -->
+
               <div
                 id="task1Question"
                 class="question-text"
@@ -311,9 +326,28 @@
                 Loading question...
               </div>
 
+
+              <!-- TASK 1 IMAGE -->
+
+              <div
+                id="task1ImageContainer"
+                class="task-image-container"
+                style="display:none;"
+              >
+
+                <img
+                  id="task1Image"
+                  class="task-image"
+                  src=""
+                  alt="IELTS Writing Task 1 visual"
+                >
+
+              </div>
+
             </div>
 
           </div>
+
 
 
           <!-- ANSWER -->
@@ -325,6 +359,7 @@
               <span class="panel-title">
                 Your Answer
               </span>
+
 
               <span class="word-count-wrapper">
 
@@ -343,12 +378,14 @@
 
             </div>
 
+
             <textarea
               id="task1Answer"
               class="answer-textarea"
               placeholder="Write your Task 1 answer here..."
               spellcheck="true"
             ></textarea>
+
 
             <div class="answer-footer">
 
@@ -396,6 +433,7 @@
 
             </div>
 
+
             <div class="question-content">
 
               <div class="instruction-box">
@@ -414,6 +452,7 @@
 
               </div>
 
+
               <div
                 id="task2Question"
                 class="question-text"
@@ -426,6 +465,7 @@
           </div>
 
 
+
           <!-- ANSWER -->
 
           <div class="answer-panel">
@@ -435,6 +475,7 @@
               <span class="panel-title">
                 Your Answer
               </span>
+
 
               <span class="word-count-wrapper">
 
@@ -453,12 +494,14 @@
 
             </div>
 
+
             <textarea
               id="task2Answer"
               class="answer-textarea"
               placeholder="Write your Task 2 answer here..."
               spellcheck="true"
             ></textarea>
+
 
             <div class="answer-footer">
 
@@ -474,6 +517,7 @@
         </div>
 
       </div>
+
 
 
       <!-- SUBMIT -->
@@ -492,9 +536,11 @@
 
         </div>
 
+
         <button
           id="submitTestBtn"
           class="primary-button submit-button"
+          type="button"
         >
           Submit Writing Test
         </button>
@@ -521,9 +567,11 @@
           ✓
         </div>
 
+
         <h1>
           Writing Test Completed
         </h1>
+
 
         <p class="result-description">
           Your answers have been evaluated.
@@ -617,6 +665,7 @@
 
         <button
           class="primary-button"
+          type="button"
           onclick="location.reload()"
         >
           Take Another Test
@@ -657,6 +706,7 @@
   </div>
 
 
+
   <!-- ======================================================
        JAVASCRIPT
        ====================================================== -->
@@ -665,4 +715,3 @@
 
 </body>
 </html>
-```
