@@ -1,25 +1,30 @@
 // ============================================================
 // IELTS WRITING PRACTICE - APP.JS
 // ============================================================
+//
 // NO AI GRADING
 //
-// Google Sheet columns:
+// Google Sheet:
 //
-// Username | Task1 | Task2 | Score | Band | Writing1 | Writing2
+// Username | Task1 | Task2 | Score | Band | Writing1 | Writing2 | Test | SubmittedAt
 //
-// The website sends only:
+// Features:
 //
-// Username
-// Writing1
-// Writing2
-//
-// Task1, Task2, Score and Band remain blank.
+// - Test 1 - Test 8
+// - JSON question loading
+// - Task 1 image
+// - 60-minute timer
+// - Word counter
+// - Submit Writing
+// - Google Sheets storage
+// - Score History by username
+// - Manual Score / Band
 //
 // ============================================================
 
 
 // ============================================================
-// GOOGLE APPS SCRIPT API
+// API
 // ============================================================
 
 const API_URL =
@@ -27,41 +32,53 @@ const API_URL =
 
 
 // ============================================================
-// TEST CONFIGURATION
+// CONFIGURATION
 // ============================================================
 
-const TOTAL_TESTS = 8;
+const TOTAL_TESTS =
+  8;
 
-const TEST_DURATION_SECONDS = 60 * 60;
+const TEST_DURATION_SECONDS =
+  60 * 60;
 
-const TASK1_MIN_WORDS = 150;
+const TASK1_MIN_WORDS =
+  150;
 
-const TASK2_MIN_WORDS = 250;
+const TASK2_MIN_WORDS =
+  250;
 
 
 // ============================================================
 // GLOBAL VARIABLES
 // ============================================================
 
-let currentTest = null;
+let currentTest =
+  null;
 
-let currentTestNumber = null;
+let currentTestNumber =
+  null;
 
-let task1Question = "";
+let task1Question =
+  "";
 
-let task2Question = "";
+let task2Question =
+  "";
 
-let task1Image = "";
+let task1Image =
+  "";
 
-let testStartTime = null;
+let testStartTime =
+  null;
 
-let timerInterval = null;
+let timerInterval =
+  null;
 
-let isSubmitting = false;
+let isSubmitting =
+  false;
 
 
 // ============================================================
-// PAGE INITIALIZATION
+// INITIALIZATION
 // ============================================================
 
 document.addEventListener(
@@ -86,7 +103,11 @@ function initializeWritingPage() {
 
   populateTestList();
 
-  showScreen("setupScreen");
+  createHistoryInterface();
+
+  showScreen(
+    "setupScreen"
+  );
 
 }
 
@@ -102,7 +123,10 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const startButton =
-    document.getElementById("startTestBtn");
+    document.getElementById(
+      "startTestBtn"
+    );
+
 
   if (startButton) {
 
@@ -119,7 +143,10 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const submitButton =
-    document.getElementById("submitTestBtn");
+    document.getElementById(
+      "submitTestBtn"
+    );
+
 
   if (submitButton) {
 
@@ -127,7 +154,9 @@ function setupEventListeners() {
       "click",
       function () {
 
-        submitWritingTest(false);
+        submitWritingTest(
+          false
+        );
 
       }
     );
@@ -140,7 +169,10 @@ function setupEventListeners() {
   // ----------------------------------------------------------
 
   const backButton =
-    document.getElementById("backBtn");
+    document.getElementById(
+      "backBtn"
+    );
+
 
   if (backButton) {
 
@@ -153,11 +185,14 @@ function setupEventListeners() {
 
 
   // ----------------------------------------------------------
-  // Task 1 Tab
+  // Task 1
   // ----------------------------------------------------------
 
   const task1Tab =
-    document.getElementById("task1Tab");
+    document.getElementById(
+      "task1Tab"
+    );
+
 
   if (task1Tab) {
 
@@ -165,7 +200,9 @@ function setupEventListeners() {
       "click",
       function () {
 
-        switchTask(1);
+        switchTask(
+          1
+        );
 
       }
     );
@@ -174,11 +211,14 @@ function setupEventListeners() {
 
 
   // ----------------------------------------------------------
-  // Task 2 Tab
+  // Task 2
   // ----------------------------------------------------------
 
   const task2Tab =
-    document.getElementById("task2Tab");
+    document.getElementById(
+      "task2Tab"
+    );
+
 
   if (task2Tab) {
 
@@ -186,7 +226,9 @@ function setupEventListeners() {
       "click",
       function () {
 
-        switchTask(2);
+        switchTask(
+          2
+        );
 
       }
     );
@@ -195,11 +237,14 @@ function setupEventListeners() {
 
 
   // ----------------------------------------------------------
-  // Task 1 Answer
+  // Task 1 word count
   // ----------------------------------------------------------
 
   const task1Answer =
-    document.getElementById("task1Answer");
+    document.getElementById(
+      "task1Answer"
+    );
+
 
   if (task1Answer) {
 
@@ -207,7 +252,9 @@ function setupEventListeners() {
       "input",
       function () {
 
-        updateWordCount(1);
+        updateWordCount(
+          1
+        );
 
       }
     );
@@ -216,11 +263,14 @@ function setupEventListeners() {
 
 
   // ----------------------------------------------------------
-  // Task 2 Answer
+  // Task 2 word count
   // ----------------------------------------------------------
 
   const task2Answer =
-    document.getElementById("task2Answer");
+    document.getElementById(
+      "task2Answer"
+    );
+
 
   if (task2Answer) {
 
@@ -228,7 +278,9 @@ function setupEventListeners() {
       "input",
       function () {
 
-        updateWordCount(2);
+        updateWordCount(
+          2
+        );
 
       }
     );
@@ -244,15 +296,18 @@ function setupEventListeners() {
 
 function loadUsername() {
 
-  const usernameInput =
-    document.getElementById("username");
+  const input =
+    document.getElementById(
+      "username"
+    );
 
-  if (!usernameInput) {
+
+  if (!input) {
     return;
   }
 
 
-  const possibleKeys = [
+  const keys = [
 
     "username",
     "Username",
@@ -264,18 +319,19 @@ function loadUsername() {
   ];
 
 
-  let username = "";
+  let username =
+    "";
 
 
   for (
     let i = 0;
-    i < possibleKeys.length;
+    i < keys.length;
     i++
   ) {
 
     const value =
       localStorage.getItem(
-        possibleKeys[i]
+        keys[i]
       );
 
 
@@ -296,10 +352,10 @@ function loadUsername() {
 
   if (username) {
 
-    usernameInput.value =
+    input.value =
       username;
 
-    usernameInput.readOnly =
+    input.readOnly =
       true;
 
   }
@@ -313,21 +369,23 @@ function loadUsername() {
 
 function getUsername() {
 
-  const usernameInput =
-    document.getElementById("username");
+  const input =
+    document.getElementById(
+      "username"
+    );
 
 
   if (
-    usernameInput &&
-    usernameInput.value.trim()
+    input &&
+    input.value.trim()
   ) {
 
-    return usernameInput.value.trim();
+    return input.value.trim();
 
   }
 
 
-  const possibleKeys = [
+  const keys = [
 
     "username",
     "Username",
@@ -341,13 +399,13 @@ function getUsername() {
 
   for (
     let i = 0;
-    i < possibleKeys.length;
+    i < keys.length;
     i++
   ) {
 
     const value =
       localStorage.getItem(
-        possibleKeys[i]
+        keys[i]
       );
 
 
@@ -369,22 +427,15 @@ function getUsername() {
 
 
 // ============================================================
-// POPULATE TEST LIST
-// ============================================================
-//
-// Currently:
-//
-// Test1.json
-// Test2.json
-// ...
-// Test8.json
-//
+// TEST LIST
 // ============================================================
 
 function populateTestList() {
 
   const select =
-    document.getElementById("testSelect");
+    document.getElementById(
+      "testSelect"
+    );
 
 
   if (!select) {
@@ -392,7 +443,8 @@ function populateTestList() {
   }
 
 
-  select.innerHTML = "";
+  select.innerHTML =
+    "";
 
 
   for (
@@ -402,7 +454,9 @@ function populateTestList() {
   ) {
 
     const option =
-      document.createElement("option");
+      document.createElement(
+        "option"
+      );
 
 
     option.value =
@@ -423,7 +477,7 @@ function populateTestList() {
 
 
 // ============================================================
-// LOAD WRITING TEST JSON
+// LOAD TEST JSON
 // ============================================================
 
 async function loadWritingTest(
@@ -438,7 +492,8 @@ async function loadWritingTest(
     await fetch(
       path,
       {
-        cache: "no-cache"
+        cache:
+          "no-cache"
       }
     );
 
@@ -452,17 +507,13 @@ async function loadWritingTest(
   }
 
 
-  const data =
-    await response.json();
-
-
-  return data;
+  return await response.json();
 
 }
 
 
 // ============================================================
-// START SELECTED TEST
+// START TEST
 // ============================================================
 
 async function startSelectedTest() {
@@ -473,7 +524,9 @@ async function startSelectedTest() {
 
 
   const select =
-    document.getElementById("testSelect");
+    document.getElementById(
+      "testSelect"
+    );
 
 
   if (!select) {
@@ -488,7 +541,9 @@ async function startSelectedTest() {
 
 
   const testNumber =
-    Number(select.value);
+    Number(
+      select.value
+    );
 
 
   if (
@@ -558,7 +613,9 @@ async function startSelectedTest() {
     );
 
 
-    switchTask(1);
+    switchTask(
+      1
+    );
 
 
   } catch (error) {
@@ -577,7 +634,9 @@ async function startSelectedTest() {
 
   } finally {
 
-    setLoading(false);
+    setLoading(
+      false
+    );
 
   }
 
@@ -622,7 +681,7 @@ function extractQuestions(
   if (!task1Question) {
 
     throw new Error(
-      "Task 1 question was not found in the JSON file."
+      "Task 1 question was not found."
     );
 
   }
@@ -631,7 +690,7 @@ function extractQuestions(
   if (!task2Question) {
 
     throw new Error(
-      "Task 2 question was not found in the JSON file."
+      "Task 2 question was not found."
     );
 
   }
@@ -652,10 +711,6 @@ function extractQuestion(
   }
 
 
-  // ----------------------------------------------------------
-  // If task itself is a string
-  // ----------------------------------------------------------
-
   if (
     typeof task ===
     "string"
@@ -666,16 +721,12 @@ function extractQuestion(
   }
 
 
-  // ----------------------------------------------------------
-  // If task is an object
-  // ----------------------------------------------------------
-
   if (
     typeof task ===
     "object"
   ) {
 
-    const possibleFields = [
+    const fields = [
 
       "question",
       "prompt",
@@ -688,16 +739,14 @@ function extractQuestion(
 
     for (
       let i = 0;
-      i < possibleFields.length;
+      i < fields.length;
       i++
     ) {
 
-      const field =
-        possibleFields[i];
-
-
       const value =
-        task[field];
+        task[
+          fields[i]
+        ];
 
 
       if (
@@ -721,7 +770,7 @@ function extractQuestion(
 
 
 // ============================================================
-// EXTRACT TASK 1 IMAGE
+// EXTRACT IMAGE
 // ============================================================
 
 function extractImage(
@@ -730,7 +779,8 @@ function extractImage(
 
   if (
     !task ||
-    typeof task !== "object"
+    typeof task !==
+      "object"
   ) {
 
     return "";
@@ -771,10 +821,6 @@ function displayTest() {
     );
 
 
-  // ----------------------------------------------------------
-  // Task 1 question
-  // ----------------------------------------------------------
-
   if (task1Element) {
 
     task1Element.textContent =
@@ -782,10 +828,6 @@ function displayTest() {
 
   }
 
-
-  // ----------------------------------------------------------
-  // Task 2 question
-  // ----------------------------------------------------------
 
   if (task2Element) {
 
@@ -795,16 +837,8 @@ function displayTest() {
   }
 
 
-  // ----------------------------------------------------------
-  // Task 1 image
-  // ----------------------------------------------------------
-
   displayTask1Image();
 
-
-  // ----------------------------------------------------------
-  // Clear previous answers
-  // ----------------------------------------------------------
 
   const task1Answer =
     document.getElementById(
@@ -834,14 +868,15 @@ function displayTest() {
   }
 
 
-  updateWordCount(1);
+  updateWordCount(
+    1
+  );
 
-  updateWordCount(2);
 
+  updateWordCount(
+    2
+  );
 
-  // ----------------------------------------------------------
-  // Test title
-  // ----------------------------------------------------------
 
   const title =
     document.getElementById(
@@ -877,10 +912,6 @@ function displayTask1Image() {
   }
 
 
-  // ----------------------------------------------------------
-  // Remove any previously created image
-  // ----------------------------------------------------------
-
   const oldImage =
     document.getElementById(
       "task1QuestionImage"
@@ -894,21 +925,15 @@ function displayTask1Image() {
   }
 
 
-  // ----------------------------------------------------------
-  // No image
-  // ----------------------------------------------------------
-
   if (!task1Image) {
     return;
   }
 
 
-  // ----------------------------------------------------------
-  // Create image
-  // ----------------------------------------------------------
-
   const image =
-    document.createElement("img");
+    document.createElement(
+      "img"
+    );
 
 
   image.id =
@@ -920,7 +945,7 @@ function displayTask1Image() {
 
 
   image.alt =
-    "IELTS Writing Task 1 chart or image";
+    "IELTS Writing Task 1 image";
 
 
   image.style.display =
@@ -929,10 +954,6 @@ function displayTask1Image() {
 
   image.style.maxWidth =
     "100%";
-
-
-  image.style.width =
-    "auto";
 
 
   image.style.height =
@@ -955,7 +976,7 @@ function displayTask1Image() {
     function () {
 
       console.error(
-        "Task 1 image could not be loaded:",
+        "Could not load Task 1 image:",
         task1Image
       );
 
@@ -964,10 +985,6 @@ function displayTask1Image() {
 
     };
 
-
-  // ----------------------------------------------------------
-  // Insert image after question
-  // ----------------------------------------------------------
 
   questionElement.insertAdjacentElement(
     "afterend",
@@ -978,7 +995,7 @@ function displayTask1Image() {
 
 
 // ============================================================
-// SWITCH BETWEEN TASK 1 AND TASK 2
+// SWITCH TASK
 // ============================================================
 
 function switchTask(
@@ -1009,10 +1026,6 @@ function switchTask(
     );
 
 
-  // ----------------------------------------------------------
-  // Task 1
-  // ----------------------------------------------------------
-
   if (task1Panel) {
 
     task1Panel.style.display =
@@ -1023,10 +1036,6 @@ function switchTask(
   }
 
 
-  // ----------------------------------------------------------
-  // Task 2
-  // ----------------------------------------------------------
-
   if (task2Panel) {
 
     task2Panel.style.display =
@@ -1036,10 +1045,6 @@ function switchTask(
 
   }
 
-
-  // ----------------------------------------------------------
-  // Tabs
-  // ----------------------------------------------------------
 
   if (task1Tab) {
 
@@ -1064,7 +1069,7 @@ function switchTask(
 
 
 // ============================================================
-// COUNT WORDS
+// WORD COUNT
 // ============================================================
 
 function countWords(
@@ -1082,7 +1087,8 @@ function countWords(
     .filter(
       function (word) {
 
-        return word.length > 0;
+        return word.length >
+          0;
 
       }
     )
@@ -1153,7 +1159,7 @@ function updateWordCount(
 
 
 // ============================================================
-// START TIMER
+// TIMER
 // ============================================================
 
 function startTimer() {
@@ -1173,11 +1179,6 @@ function startTimer() {
   timerInterval =
     setInterval(
       function () {
-
-        if (!testStartTime) {
-          return;
-        }
-
 
         const elapsed =
           Math.floor(
@@ -1273,7 +1274,8 @@ function updateTimer(
 function stopTimer() {
 
   if (
-    timerInterval !== null
+    timerInterval !==
+    null
   ) {
 
     clearInterval(
@@ -1290,7 +1292,7 @@ function stopTimer() {
 
 
 // ============================================================
-// AUTOMATIC SUBMISSION
+// AUTO SUBMIT
 // ============================================================
 
 async function autoSubmitWritingTest() {
@@ -1308,41 +1310,17 @@ async function autoSubmitWritingTest() {
 
 
 // ============================================================
-// SUBMIT WRITING TEST
-// ============================================================
-//
-// IMPORTANT:
-//
-// This function DOES NOT call:
-//
-// scoreWriting
-// OpenAI
-// AI grading
-//
-// It only calls:
-//
-// saveWriting
-//
+// SUBMIT WRITING
 // ============================================================
 
 async function submitWritingTest(
   automatic = false
 ) {
 
-  // ----------------------------------------------------------
-  // Prevent double submission
-  // ----------------------------------------------------------
-
   if (isSubmitting) {
-
     return;
-
   }
 
-
-  // ----------------------------------------------------------
-  // Get username
-  // ----------------------------------------------------------
 
   const username =
     getUsername();
@@ -1359,25 +1337,21 @@ async function submitWritingTest(
   }
 
 
-  // ----------------------------------------------------------
-  // Get answer fields
-  // ----------------------------------------------------------
-
-  const task1AnswerElement =
+  const task1Element =
     document.getElementById(
       "task1Answer"
     );
 
 
-  const task2AnswerElement =
+  const task2Element =
     document.getElementById(
       "task2Answer"
     );
 
 
   if (
-    !task1AnswerElement ||
-    !task2AnswerElement
+    !task1Element ||
+    !task2Element
   ) {
 
     showError(
@@ -1389,21 +1363,13 @@ async function submitWritingTest(
   }
 
 
-  // ----------------------------------------------------------
-  // Read answers
-  // ----------------------------------------------------------
-
   const task1Answer =
-    task1AnswerElement.value.trim();
+    task1Element.value.trim();
 
 
   const task2Answer =
-    task2AnswerElement.value.trim();
+    task2Element.value.trim();
 
-
-  // ----------------------------------------------------------
-  // Count words
-  // ----------------------------------------------------------
 
   const task1Words =
     countWords(
@@ -1418,27 +1384,21 @@ async function submitWritingTest(
 
 
   // ==========================================================
-  // MANUAL SUBMISSION CHECKS
+  // MANUAL CONFIRMATIONS
   // ==========================================================
 
   if (!automatic) {
-
-    // --------------------------------------------------------
-    // BOTH EMPTY
-    // --------------------------------------------------------
 
     if (
       !task1Answer &&
       !task2Answer
     ) {
 
-      const confirmed =
-        confirm(
-          "Both Task 1 and Task 2 are empty.\n\nAre you sure you want to submit your Writing test?"
-        );
-
-
-      if (!confirmed) {
+      if (
+        !confirm(
+          "Both Task 1 and Task 2 are empty.\n\nSubmit anyway?"
+        )
+      ) {
 
         return;
 
@@ -1446,24 +1406,20 @@ async function submitWritingTest(
 
     }
 
-
-    // --------------------------------------------------------
-    // TASK 1 EMPTY
-    // --------------------------------------------------------
 
     else if (
       !task1Answer
     ) {
 
-      const confirmed =
-        confirm(
-          "Task 1 is empty.\n\nAre you sure you want to submit your Writing test?"
+      if (
+        !confirm(
+          "Task 1 is empty.\n\nSubmit anyway?"
+        )
+      ) {
+
+        switchTask(
+          1
         );
-
-
-      if (!confirmed) {
-
-        switchTask(1);
 
         return;
 
@@ -1471,24 +1427,20 @@ async function submitWritingTest(
 
     }
 
-
-    // --------------------------------------------------------
-    // TASK 2 EMPTY
-    // --------------------------------------------------------
 
     else if (
       !task2Answer
     ) {
 
-      const confirmed =
-        confirm(
-          "Task 2 is empty.\n\nAre you sure you want to submit your Writing test?"
+      if (
+        !confirm(
+          "Task 2 is empty.\n\nSubmit anyway?"
+        )
+      ) {
+
+        switchTask(
+          2
         );
-
-
-      if (!confirmed) {
-
-        switchTask(2);
 
         return;
 
@@ -1496,25 +1448,22 @@ async function submitWritingTest(
 
     }
 
-
-    // --------------------------------------------------------
-    // TASK 1 WORD COUNT
-    // --------------------------------------------------------
 
     if (
       task1Answer &&
-      task1Words < TASK1_MIN_WORDS
+      task1Words <
+        TASK1_MIN_WORDS
     ) {
 
-      const confirmed =
-        confirm(
-          `Task 1 has only ${task1Words} words.\n\nIELTS Task 1 requires at least 150 words.\n\nSubmit anyway?`
+      if (
+        !confirm(
+          `Task 1 has only ${task1Words} words.\n\nMinimum recommended: 150 words.\n\nSubmit anyway?`
+        )
+      ) {
+
+        switchTask(
+          1
         );
-
-
-      if (!confirmed) {
-
-        switchTask(1);
 
         return;
 
@@ -1522,25 +1471,22 @@ async function submitWritingTest(
 
     }
 
-
-    // --------------------------------------------------------
-    // TASK 2 WORD COUNT
-    // --------------------------------------------------------
 
     if (
       task2Answer &&
-      task2Words < TASK2_MIN_WORDS
+      task2Words <
+        TASK2_MIN_WORDS
     ) {
 
-      const confirmed =
-        confirm(
-          `Task 2 has only ${task2Words} words.\n\nIELTS Task 2 requires at least 250 words.\n\nSubmit anyway?`
+      if (
+        !confirm(
+          `Task 2 has only ${task2Words} words.\n\nMinimum recommended: 250 words.\n\nSubmit anyway?`
+        )
+      ) {
+
+        switchTask(
+          2
         );
-
-
-      if (!confirmed) {
-
-        switchTask(2);
 
         return;
 
@@ -1549,17 +1495,11 @@ async function submitWritingTest(
     }
 
 
-    // --------------------------------------------------------
-    // FINAL CONFIRMATION
-    // --------------------------------------------------------
-
-    const confirmed =
-      confirm(
+    if (
+      !confirm(
         "Are you sure you want to submit your Writing test?\n\nYou will not be able to edit your answers after submission."
-      );
-
-
-    if (!confirmed) {
+      )
+    ) {
 
       return;
 
@@ -1569,7 +1509,7 @@ async function submitWritingTest(
 
 
   // ==========================================================
-  // BEGIN SUBMISSION
+  // SUBMISSION
   // ==========================================================
 
   isSubmitting =
@@ -1587,10 +1527,6 @@ async function submitWritingTest(
     );
 
 
-    // ========================================================
-    // SEND ONLY saveWriting
-    // ========================================================
-
     const payload = {
 
       action:
@@ -1600,6 +1536,9 @@ async function submitWritingTest(
 
         username:
           username,
+
+        testNumber:
+          currentTestNumber,
 
         task1Answer:
           task1Answer,
@@ -1642,10 +1581,6 @@ async function submitWritingTest(
       );
 
 
-    // ========================================================
-    // CHECK HTTP RESPONSE
-    // ========================================================
-
     if (!response.ok) {
 
       throw new Error(
@@ -1654,10 +1589,6 @@ async function submitWritingTest(
 
     }
 
-
-    // ========================================================
-    // READ RESPONSE
-    // ========================================================
 
     const responseText =
       await response.text();
@@ -1679,13 +1610,7 @@ async function submitWritingTest(
           responseText
         );
 
-    } catch (parseError) {
-
-      console.error(
-        "Invalid JSON response:",
-        responseText
-      );
-
+    } catch (error) {
 
       throw new Error(
         "The server returned an invalid response."
@@ -1694,33 +1619,17 @@ async function submitWritingTest(
     }
 
 
-    // ========================================================
-    // BACKEND ERROR
-    // ========================================================
-
     if (
       !result ||
       result.success !== true
     ) {
 
       throw new Error(
-        result &&
-        result.message
-          ? result.message
-          : "Writing submission failed."
+        result.message ||
+        "Writing submission failed."
       );
 
     }
-
-
-    // ========================================================
-    // SUCCESS
-    // ========================================================
-
-    console.log(
-      "Writing submission saved successfully:",
-      result
-    );
 
 
     displaySubmissionResult(
@@ -1746,10 +1655,6 @@ async function submitWritingTest(
       false;
 
 
-    // --------------------------------------------------------
-    // Restart timer if manual submission failed
-    // --------------------------------------------------------
-
     if (
       testStartTime &&
       !automatic
@@ -1759,11 +1664,14 @@ async function submitWritingTest(
 
     }
 
+
     return;
 
   } finally {
 
-    setLoading(false);
+    setLoading(
+      false
+    );
 
   }
 
@@ -1771,13 +1679,7 @@ async function submitWritingTest(
 
 
 // ============================================================
-// DISPLAY SUBMISSION RESULT
-// ============================================================
-//
-// There is NO AI SCORE.
-//
-// Everything is pending until the teacher manually marks it.
-//
+// DISPLAY RESULT
 // ============================================================
 
 function displaySubmissionResult(
@@ -1845,12 +1747,12 @@ function displaySubmissionResult(
   );
 
 
-  // ----------------------------------------------------------
-  // Keep result in console for debugging
-  // ----------------------------------------------------------
+  isSubmitting =
+    false;
+
 
   console.log(
-    "Submission result:",
+    "Submission successful:",
     result
   );
 
@@ -1863,13 +1765,11 @@ function displaySubmissionResult(
 
 function backToSetup() {
 
-  const confirmed =
-    confirm(
+  if (
+    !confirm(
       "Leave this test?\n\nYour current answers will be lost."
-    );
-
-
-  if (!confirmed) {
+    )
+  ) {
 
     return;
 
@@ -1943,7 +1843,7 @@ function showScreen(
 
 
 // ============================================================
-// LOADING OVERLAY
+// LOADING
 // ============================================================
 
 function setLoading(
@@ -1986,7 +1886,7 @@ function setLoading(
 
 
 // ============================================================
-// ERROR MESSAGE
+// ERROR
 // ============================================================
 
 function showError(
@@ -1994,7 +1894,6 @@ function showError(
 ) {
 
   console.error(
-    "Writing website error:",
     message
   );
 
@@ -2039,6 +1938,1038 @@ function showError(
 
 
 // ============================================================
+// ============================================================
+// SCORE HISTORY
+// ============================================================
+// ============================================================
+
+
+// ============================================================
+// CREATE HISTORY INTERFACE
+// ============================================================
+//
+// We create the history UI dynamically.
+// You don't need to add new HTML manually.
+//
+// ============================================================
+
+function createHistoryInterface() {
+
+  const setupScreen =
+    document.getElementById(
+      "setupScreen"
+    );
+
+
+  if (!setupScreen) {
+
+    console.warn(
+      "setupScreen not found. Score History UI was not created."
+    );
+
+    return;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Prevent duplicate
+  // ----------------------------------------------------------
+
+  if (
+    document.getElementById(
+      "writingHistorySection"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Add styles
+  // ----------------------------------------------------------
+
+  addHistoryStyles();
+
+
+  // ----------------------------------------------------------
+  // Create section
+  // ----------------------------------------------------------
+
+  const section =
+    document.createElement(
+      "div"
+    );
+
+
+  section.id =
+    "writingHistorySection";
+
+
+  section.className =
+    "writing-history-section";
+
+
+  section.innerHTML = `
+
+    <div class="history-header">
+
+      <h2>My Score History</h2>
+
+      <p>
+        View your previous IELTS Writing submissions and manually entered scores.
+      </p>
+
+    </div>
+
+    <div class="history-controls">
+
+      <button
+        type="button"
+        id="viewHistoryBtn"
+        class="history-button"
+      >
+        View Score History
+      </button>
+
+    </div>
+
+    <div
+      id="historyLoading"
+      class="history-loading"
+      style="display:none;"
+    >
+      Loading score history...
+    </div>
+
+    <div
+      id="historyError"
+      class="history-error"
+      style="display:none;"
+    ></div>
+
+    <div
+      id="historyResults"
+      class="history-results"
+      style="display:none;"
+    ></div>
+
+  `;
+
+
+  // ----------------------------------------------------------
+  // Add after setup content
+  // ----------------------------------------------------------
+
+  setupScreen.appendChild(
+    section
+  );
+
+
+  // ----------------------------------------------------------
+  // Button
+  // ----------------------------------------------------------
+
+  const button =
+    document.getElementById(
+      "viewHistoryBtn"
+    );
+
+
+  if (button) {
+
+    button.addEventListener(
+      "click",
+      loadScoreHistory
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// ADD HISTORY CSS
+// ============================================================
+
+function addHistoryStyles() {
+
+  if (
+    document.getElementById(
+      "writingHistoryStyles"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const style =
+    document.createElement(
+      "style"
+    );
+
+
+  style.id =
+    "writingHistoryStyles";
+
+
+  style.textContent = `
+
+    .writing-history-section {
+
+      margin-top: 30px;
+
+      padding: 24px;
+
+      border-radius: 16px;
+
+      background: rgba(255,255,255,0.04);
+
+      border: 1px solid rgba(255,255,255,0.10);
+
+    }
+
+
+    .history-header h2 {
+
+      margin: 0 0 8px;
+
+      font-size: 22px;
+
+    }
+
+
+    .history-header p {
+
+      margin: 0 0 18px;
+
+      opacity: 0.75;
+
+      line-height: 1.5;
+
+    }
+
+
+    .history-button {
+
+      width: 100%;
+
+      padding: 13px 18px;
+
+      border: none;
+
+      border-radius: 10px;
+
+      cursor: pointer;
+
+      font-size: 15px;
+
+      font-weight: 600;
+
+      background: #ffffff;
+
+      color: #111111;
+
+      transition: opacity 0.2s ease;
+
+    }
+
+
+    .history-button:hover {
+
+      opacity: 0.85;
+
+    }
+
+
+    .history-loading {
+
+      margin-top: 20px;
+
+      padding: 15px;
+
+      text-align: center;
+
+      opacity: 0.8;
+
+    }
+
+
+    .history-error {
+
+      margin-top: 20px;
+
+      padding: 14px;
+
+      border-radius: 10px;
+
+      background: rgba(255, 70, 70, 0.12);
+
+      border: 1px solid rgba(255, 70, 70, 0.3);
+
+    }
+
+
+    .history-results {
+
+      margin-top: 24px;
+
+    }
+
+
+    .history-empty {
+
+      padding: 20px;
+
+      text-align: center;
+
+      opacity: 0.75;
+
+    }
+
+
+    .history-title {
+
+      margin-bottom: 16px;
+
+      font-size: 18px;
+
+      font-weight: 600;
+
+    }
+
+
+    .history-table-wrapper {
+
+      width: 100%;
+
+      overflow-x: auto;
+
+      border-radius: 12px;
+
+    }
+
+
+    .history-table {
+
+      width: 100%;
+
+      border-collapse: collapse;
+
+      min-width: 600px;
+
+    }
+
+
+    .history-table th,
+
+    .history-table td {
+
+      padding: 12px 10px;
+
+      text-align: left;
+
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+
+    }
+
+
+    .history-table th {
+
+      font-weight: 600;
+
+      background: rgba(255,255,255,0.05);
+
+    }
+
+
+    .history-pending {
+
+      opacity: 0.65;
+
+    }
+
+
+    .history-score {
+
+      font-weight: 700;
+
+    }
+
+
+    .history-band {
+
+      font-weight: 700;
+
+    }
+
+
+    .history-answer-button {
+
+      padding: 7px 11px;
+
+      border: 1px solid rgba(255,255,255,0.2);
+
+      background: transparent;
+
+      color: inherit;
+
+      border-radius: 7px;
+
+      cursor: pointer;
+
+    }
+
+
+    .history-answer-button:hover {
+
+      background: rgba(255,255,255,0.08);
+
+    }
+
+
+    .history-answer-box {
+
+      margin-top: 8px;
+
+      padding: 14px;
+
+      border-radius: 10px;
+
+      background: rgba(0,0,0,0.18);
+
+      white-space: pre-wrap;
+
+      line-height: 1.6;
+
+      max-height: 350px;
+
+      overflow-y: auto;
+
+    }
+
+
+    @media (max-width: 600px) {
+
+      .writing-history-section {
+
+        padding: 18px;
+
+      }
+
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    style
+  );
+
+}
+
+
+// ============================================================
+// LOAD SCORE HISTORY
+// ============================================================
+
+async function loadScoreHistory() {
+
+  const username =
+    getUsername();
+
+
+  if (!username) {
+
+    showError(
+      "Please enter your username first."
+    );
+
+    return;
+
+  }
+
+
+  const loading =
+    document.getElementById(
+      "historyLoading"
+    );
+
+
+  const error =
+    document.getElementById(
+      "historyError"
+    );
+
+
+  const results =
+    document.getElementById(
+      "historyResults"
+    );
+
+
+  if (loading) {
+
+    loading.style.display =
+      "block";
+
+  }
+
+
+  if (error) {
+
+    error.style.display =
+      "none";
+
+    error.textContent =
+      "";
+
+  }
+
+
+  if (results) {
+
+    results.style.display =
+      "none";
+
+    results.innerHTML =
+      "";
+
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+
+          method:
+            "POST",
+
+          headers: {
+
+            "Content-Type":
+              "text/plain;charset=utf-8"
+
+          },
+
+          body:
+            JSON.stringify({
+
+              action:
+                "getWritingHistory",
+
+              data: {
+
+                username:
+                  username
+
+              }
+
+            })
+
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `Server error: ${response.status}`
+      );
+
+    }
+
+
+    const responseText =
+      await response.text();
+
+
+    console.log(
+      "Score history response:",
+      responseText
+    );
+
+
+    let result;
+
+
+    try {
+
+      result =
+        JSON.parse(
+          responseText
+        );
+
+    } catch (parseError) {
+
+      throw new Error(
+        "The server returned an invalid history response."
+      );
+
+    }
+
+
+    if (
+      !result ||
+      result.success !== true
+    ) {
+
+      throw new Error(
+        result.message ||
+        "Unable to load score history."
+      );
+
+    }
+
+
+    displayScoreHistory(
+      result.history ||
+      [],
+      username
+    );
+
+
+  } catch (err) {
+
+    console.error(
+      "History error:",
+      err
+    );
+
+
+    if (error) {
+
+      error.textContent =
+        err.message ||
+        "Unable to load score history.";
+
+      error.style.display =
+        "block";
+
+    }
+
+  } finally {
+
+    if (loading) {
+
+      loading.style.display =
+        "none";
+
+    }
+
+  }
+
+}
+
+
+// ============================================================
+// DISPLAY SCORE HISTORY
+// ============================================================
+
+function displayScoreHistory(
+  history,
+  username
+) {
+
+  const results =
+    document.getElementById(
+      "historyResults"
+    );
+
+
+  if (!results) {
+    return;
+  }
+
+
+  results.style.display =
+    "block";
+
+
+  // ----------------------------------------------------------
+  // No history
+  // ----------------------------------------------------------
+
+  if (
+    !history ||
+    history.length === 0
+  ) {
+
+    results.innerHTML = `
+
+      <div class="history-empty">
+
+        No Writing submissions were found for
+        <strong>${escapeHtml(username)}</strong>.
+
+      </div>
+
+    `;
+
+
+    return;
+
+  }
+
+
+  // ----------------------------------------------------------
+  // Header
+  // ----------------------------------------------------------
+
+  let html = `
+
+    <div class="history-title">
+
+      Score History for
+      <strong>${escapeHtml(username)}</strong>
+
+    </div>
+
+    <div class="history-table-wrapper">
+
+      <table class="history-table">
+
+        <thead>
+
+          <tr>
+
+            <th>Test</th>
+
+            <th>Submitted</th>
+
+            <th>Score</th>
+
+            <th>Band</th>
+
+            <th>Answers</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+  `;
+
+
+  // ----------------------------------------------------------
+  // Rows
+  // ----------------------------------------------------------
+
+  history.forEach(
+    function (
+      item,
+      index
+    ) {
+
+      const score =
+        item.score &&
+        item.score.trim()
+          ? item.score
+          : "Pending";
+
+
+      const band =
+        item.band &&
+        item.band.trim()
+          ? item.band
+          : "Pending";
+
+
+      const test =
+        item.test &&
+        item.test.trim()
+          ? item.test
+          : "Writing";
+
+
+      const submitted =
+        item.submittedAt &&
+        item.submittedAt.trim()
+          ? formatHistoryDate(
+              item.submittedAt
+            )
+          : "—";
+
+
+      const scoreClass =
+        score === "Pending"
+          ? "history-pending"
+          : "history-score";
+
+
+      const bandClass =
+        band === "Pending"
+          ? "history-pending"
+          : "history-band";
+
+
+      html += `
+
+        <tr>
+
+          <td>
+            ${escapeHtml(test)}
+          </td>
+
+          <td>
+            ${escapeHtml(submitted)}
+          </td>
+
+          <td class="${scoreClass}">
+            ${escapeHtml(score)}
+          </td>
+
+          <td class="${bandClass}">
+            ${escapeHtml(band)}
+          </td>
+
+          <td>
+
+            <button
+              type="button"
+              class="history-answer-button"
+              data-history-index="${index}"
+            >
+              View
+            </button>
+
+          </td>
+
+        </tr>
+
+        <tr
+          id="historyAnswerRow${index}"
+          style="display:none;"
+        >
+
+          <td colspan="5">
+
+            <div class="history-answer-box">
+
+              <strong>Task 1</strong>
+
+              <br><br>
+
+              ${escapeHtml(
+                item.writing1 ||
+                "No Task 1 answer."
+              )}
+
+              <br><br>
+
+              <strong>Task 2</strong>
+
+              <br><br>
+
+              ${escapeHtml(
+                item.writing2 ||
+                "No Task 2 answer."
+              )}
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }
+  );
+
+
+  // ----------------------------------------------------------
+  // Close table
+  // ----------------------------------------------------------
+
+  html += `
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+
+  results.innerHTML =
+    html;
+
+
+  // ----------------------------------------------------------
+  // View answer buttons
+  // ----------------------------------------------------------
+
+  const buttons =
+    results.querySelectorAll(
+      ".history-answer-button"
+    );
+
+
+  buttons.forEach(
+    function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+
+          const index =
+            Number(
+              button.dataset.historyIndex
+            );
+
+
+          const row =
+            document.getElementById(
+              `historyAnswerRow${index}`
+            );
+
+
+          if (!row) {
+            return;
+          }
+
+
+          const isHidden =
+            row.style.display ===
+            "none";
+
+
+          row.style.display =
+            isHidden
+              ? "table-row"
+              : "none";
+
+
+          button.textContent =
+            isHidden
+              ? "Hide"
+              : "View";
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+// ============================================================
+// FORMAT HISTORY DATE
+// ============================================================
+
+function formatHistoryDate(
+  value
+) {
+
+  if (!value) {
+    return "—";
+  }
+
+
+  const date =
+    new Date(
+      value.replace(
+        " ",
+        "T"
+      )
+    );
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+
+    return value;
+
+  }
+
+
+  return date.toLocaleString(
+    undefined,
+    {
+
+      year:
+        "numeric",
+
+      month:
+        "short",
+
+      day:
+        "numeric",
+
+      hour:
+        "2-digit",
+
+      minute:
+        "2-digit"
+
+    }
+  );
+
+}
+
+
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+
+function escapeHtml(
+  value
+) {
+
+  if (
+    value ===
+    null ||
+    value ===
+    undefined
+  ) {
+
+    return "";
+
+  }
+
+
+  return String(
+    value
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+// ============================================================
 // GLOBAL FUNCTIONS
 // ============================================================
 
@@ -2062,26 +2993,31 @@ window.updateWordCount =
   updateWordCount;
 
 
+window.loadScoreHistory =
+  loadScoreHistory;
+
+
 // ============================================================
-// DEBUG INFORMATION
+// DEBUG
 // ============================================================
 
 console.log(
   "IELTS Writing app.js loaded."
 );
 
-
 console.log(
   "AI grading: DISABLED"
 );
 
-
 console.log(
-  "Backend action: saveWriting"
+  "Backend action for submissions: saveWriting"
 );
 
+console.log(
+  "Backend action for history: getWritingHistory"
+);
 
 console.log(
-  "API URL:",
+  "API:",
   API_URL
 );
