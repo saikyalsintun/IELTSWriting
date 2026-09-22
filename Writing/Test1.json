@@ -1,0 +1,12 @@
+{
+  "test": 1,
+  "task1": {
+    "type": "academic_task_1",
+    "question": "The chart below shows the percentage of households in a particular country that had access to three different types of technology in 2000, 2005, 2010 and 2015. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+    "image": "Writing/Images/Test1.png"
+  },
+  "task2": {
+    "type": "academic_task_2",
+    "question": "Some people believe that children should begin learning a foreign language at primary school rather than secondary school. Others believe that learning a foreign language should begin at secondary school. Discuss both views and give your own opinion."
+  }
+}
