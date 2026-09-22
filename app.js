@@ -1,9 +1,18 @@
 // ============================================================
 // IELTS WRITING - APP.JS
 // ============================================================
+// No AI grading.
+//
+// Student submission is saved to Google Sheets:
+//
+// Username | Task1 | Task2 | Score | Band | Writing1 | Writing2
+//
+// Score and Band are left blank for manual marking.
+// ============================================================
+
 
 // ============================================================
-// CONFIGURATION
+// API CONFIGURATION
 // ============================================================
 
 const API_URL =
@@ -11,7 +20,7 @@ const API_URL =
 
 
 // ============================================================
-// GLOBAL STATE
+// GLOBAL VARIABLES
 // ============================================================
 
 let currentTest = null;
@@ -46,10 +55,10 @@ document.addEventListener(
 
 
 // ============================================================
-// INITIALIZE
+// INITIALIZE PAGE
 // ============================================================
 
-async function initializeWritingPage() {
+function initializeWritingPage() {
 
   setupEventListeners();
 
@@ -57,7 +66,9 @@ async function initializeWritingPage() {
 
   populateTestList();
 
-  showScreen("setupScreen");
+  showScreen(
+    "setupScreen"
+  );
 
 }
 
@@ -69,7 +80,7 @@ async function initializeWritingPage() {
 function setupEventListeners() {
 
   // ----------------------------------------------------------
-  // Start test
+  // Start Test
   // ----------------------------------------------------------
 
   const startButton =
@@ -83,11 +94,12 @@ function setupEventListeners() {
       "click",
       startSelectedTest
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // Submit test
+  // Submit Test
   // ----------------------------------------------------------
 
   const submitButton =
@@ -99,13 +111,18 @@ function setupEventListeners() {
 
     submitButton.addEventListener(
       "click",
-      submitWritingTest
+      function () {
+
+        submitWritingTest(false);
+
+      }
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // Back button
+  // Back Button
   // ----------------------------------------------------------
 
   const backButton =
@@ -119,23 +136,18 @@ function setupEventListeners() {
       "click",
       backToSetup
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // Task tabs
+  // Task 1 Tab
   // ----------------------------------------------------------
 
   const task1Tab =
     document.getElementById(
       "task1Tab"
     );
-
-  const task2Tab =
-    document.getElementById(
-      "task2Tab"
-    );
-
 
   if (task1Tab) {
 
@@ -147,8 +159,18 @@ function setupEventListeners() {
 
       }
     );
+
   }
 
+
+  // ----------------------------------------------------------
+  // Task 2 Tab
+  // ----------------------------------------------------------
+
+  const task2Tab =
+    document.getElementById(
+      "task2Tab"
+    );
 
   if (task2Tab) {
 
@@ -160,23 +182,18 @@ function setupEventListeners() {
 
       }
     );
+
   }
 
 
   // ----------------------------------------------------------
-  // Answer input
+  // Task 1 Answer
   // ----------------------------------------------------------
 
   const task1Answer =
     document.getElementById(
       "task1Answer"
     );
-
-  const task2Answer =
-    document.getElementById(
-      "task2Answer"
-    );
-
 
   if (task1Answer) {
 
@@ -188,8 +205,18 @@ function setupEventListeners() {
 
       }
     );
+
   }
 
+
+  // ----------------------------------------------------------
+  // Task 2 Answer
+  // ----------------------------------------------------------
+
+  const task2Answer =
+    document.getElementById(
+      "task2Answer"
+    );
 
   if (task2Answer) {
 
@@ -201,6 +228,7 @@ function setupEventListeners() {
 
       }
     );
+
   }
 
 }
@@ -217,6 +245,7 @@ function loadUsername() {
       "username"
     );
 
+
   if (!usernameInput) {
     return;
   }
@@ -225,15 +254,10 @@ function loadUsername() {
   const possibleKeys = [
 
     "username",
-
     "Username",
-
     "studentUsername",
-
     "student_username",
-
     "loggedInUsername",
-
     "currentUsername"
 
   ];
@@ -260,7 +284,9 @@ function loadUsername() {
         value;
 
       break;
+
     }
+
   }
 
 
@@ -271,6 +297,7 @@ function loadUsername() {
 
     usernameInput.readOnly =
       true;
+
   }
 
 }
@@ -294,21 +321,17 @@ function getUsername() {
   ) {
 
     return input.value.trim();
+
   }
 
 
   const possibleKeys = [
 
     "username",
-
     "Username",
-
     "studentUsername",
-
     "student_username",
-
     "loggedInUsername",
-
     "currentUsername"
 
   ];
@@ -329,11 +352,14 @@ function getUsername() {
     if (value) {
 
       return value.trim();
+
     }
+
   }
 
 
   return "";
+
 }
 
 
@@ -341,9 +367,7 @@ function getUsername() {
 // POPULATE TEST LIST
 // ============================================================
 //
-// Test1.json -> Test 1
-// Test2.json -> Test 2
-// ...
+// Currently supports Test1.json through Test8.json.
 //
 // ============================================================
 
@@ -386,6 +410,7 @@ function populateTestList() {
     select.appendChild(
       option
     );
+
   }
 
 }
@@ -417,6 +442,7 @@ async function loadWritingTest(
     throw new Error(
       `Test${testNumber}.json could not be loaded.`
     );
+
   }
 
 
@@ -425,6 +451,7 @@ async function loadWritingTest(
 
 
   return data;
+
 }
 
 
@@ -452,6 +479,7 @@ async function startSelectedTest() {
     );
 
     return;
+
   }
 
 
@@ -471,6 +499,7 @@ async function startSelectedTest() {
     );
 
     return;
+
   }
 
 
@@ -485,6 +514,7 @@ async function startSelectedTest() {
     );
 
     return;
+
   }
 
 
@@ -526,14 +556,13 @@ async function startSelectedTest() {
     );
 
 
-    switchTask(
-      1
-    );
+    switchTask(1);
 
 
   } catch (error) {
 
     console.error(
+      "Test loading error:",
       error
     );
 
@@ -546,9 +575,8 @@ async function startSelectedTest() {
 
   } finally {
 
-    setLoading(
-      false
-    );
+    setLoading(false);
+
   }
 
 }
@@ -556,27 +584,6 @@ async function startSelectedTest() {
 
 // ============================================================
 // EXTRACT QUESTIONS
-// ============================================================
-//
-// Supports:
-//
-// {
-//   "task1": {
-//      "question": "...",
-//      "image": "Writing/Images/Test1.png"
-//   },
-//   "task2": {
-//      "question": "..."
-//   }
-// }
-//
-// OR
-//
-// {
-//   "task1": "...",
-//   "task2": "..."
-// }
-//
 // ============================================================
 
 function extractQuestions(
@@ -595,23 +602,10 @@ function extractQuestions(
     );
 
 
-  // ----------------------------------------------------------
-  // GET TASK 1 IMAGE
-  // ----------------------------------------------------------
-
-  task1Image = "";
-
-
-  if (
-    test &&
-    test.task1 &&
-    typeof test.task1 === "object" &&
-    typeof test.task1.image === "string"
-  ) {
-
-    task1Image =
-      test.task1.image.trim();
-  }
+  task1Image =
+    extractImage(
+      test.task1
+    );
 
 
   if (!task1Question) {
@@ -619,6 +613,7 @@ function extractQuestions(
     throw new Error(
       "Task 1 question was not found in the JSON file."
     );
+
   }
 
 
@@ -627,13 +622,14 @@ function extractQuestions(
     throw new Error(
       "Task 2 question was not found in the JSON file."
     );
+
   }
 
 }
 
 
 // ============================================================
-// EXTRACT QUESTION TEXT
+// EXTRACT QUESTION
 // ============================================================
 
 function extractQuestion(
@@ -651,6 +647,7 @@ function extractQuestion(
   ) {
 
     return task.trim();
+
   }
 
 
@@ -662,13 +659,9 @@ function extractQuestion(
     const possibleFields = [
 
       "question",
-
       "prompt",
-
       "task",
-
       "title",
-
       "text"
 
     ];
@@ -693,12 +686,49 @@ function extractQuestion(
       ) {
 
         return value.trim();
+
       }
+
     }
+
   }
 
 
   return "";
+
+}
+
+
+// ============================================================
+// EXTRACT TASK 1 IMAGE
+// ============================================================
+
+function extractImage(
+  task
+) {
+
+  if (
+    !task ||
+    typeof task !== "object"
+  ) {
+
+    return "";
+
+  }
+
+
+  if (
+    typeof task.image ===
+    "string"
+  ) {
+
+    return task.image.trim();
+
+  }
+
+
+  return "";
+
 }
 
 
@@ -724,6 +754,7 @@ function displayTest() {
 
     task1Element.textContent =
       task1Question;
+
   }
 
 
@@ -731,18 +762,15 @@ function displayTest() {
 
     task2Element.textContent =
       task2Question;
+
   }
 
-
-  // ----------------------------------------------------------
-  // DISPLAY TASK 1 IMAGE
-  // ----------------------------------------------------------
 
   displayTask1Image();
 
 
   // ----------------------------------------------------------
-  // RESET ANSWERS
+  // Clear previous answers
   // ----------------------------------------------------------
 
   const task1Answer =
@@ -759,15 +787,15 @@ function displayTest() {
 
   if (task1Answer) {
 
-    task1Answer.value =
-      "";
+    task1Answer.value = "";
+
   }
 
 
   if (task2Answer) {
 
-    task2Answer.value =
-      "";
+    task2Answer.value = "";
+
   }
 
 
@@ -777,7 +805,7 @@ function displayTest() {
 
 
   // ----------------------------------------------------------
-  // UPDATE TEST TITLE
+  // Test Title
   // ----------------------------------------------------------
 
   const title =
@@ -791,6 +819,7 @@ function displayTest() {
     title.textContent =
       "IELTS Writing Test " +
       currentTestNumber;
+
   }
 
 }
@@ -799,83 +828,38 @@ function displayTest() {
 // ============================================================
 // DISPLAY TASK 1 IMAGE
 // ============================================================
-//
-// This creates the image container automatically.
-// No HTML change is required.
-//
-// Example JSON:
-//
-// "image": "Writing/Images/Test1.png"
-//
-// ============================================================
 
 function displayTask1Image() {
 
-  const task1Element =
+  const questionElement =
     document.getElementById(
       "task1Question"
     );
 
 
-  if (!task1Element) {
+  if (!questionElement) {
     return;
   }
 
 
-  // ----------------------------------------------------------
-  // Remove old image container
-  // ----------------------------------------------------------
-
-  const oldContainer =
+  // Remove previous image
+  const oldImage =
     document.getElementById(
-      "task1ImageContainer"
+      "task1QuestionImage"
     );
 
 
-  if (oldContainer) {
+  if (oldImage) {
 
-    oldContainer.remove();
+    oldImage.remove();
+
   }
 
-
-  // ----------------------------------------------------------
-  // If there is no image, stop
-  // ----------------------------------------------------------
 
   if (!task1Image) {
     return;
   }
 
-
-  // ----------------------------------------------------------
-  // Create image container
-  // ----------------------------------------------------------
-
-  const imageContainer =
-    document.createElement(
-      "div"
-    );
-
-
-  imageContainer.id =
-    "task1ImageContainer";
-
-
-  imageContainer.style.width =
-    "100%";
-
-
-  imageContainer.style.margin =
-    "20px 0";
-
-
-  imageContainer.style.textAlign =
-    "center";
-
-
-  // ----------------------------------------------------------
-  // Create image
-  // ----------------------------------------------------------
 
   const image =
     document.createElement(
@@ -883,12 +867,16 @@ function displayTask1Image() {
     );
 
 
+  image.id =
+    "task1QuestionImage";
+
+
   image.src =
     task1Image;
 
 
   image.alt =
-    "IELTS Writing Task 1 chart";
+    "IELTS Writing Task 1 image";
 
 
   image.style.display =
@@ -904,7 +892,7 @@ function displayTask1Image() {
 
 
   image.style.margin =
-    "0 auto";
+    "20px auto";
 
 
   image.style.borderRadius =
@@ -915,10 +903,6 @@ function displayTask1Image() {
     "contain";
 
 
-  // ----------------------------------------------------------
-  // Image error
-  // ----------------------------------------------------------
-
   image.onerror =
     function () {
 
@@ -928,55 +912,14 @@ function displayTask1Image() {
       );
 
 
-      imageContainer.innerHTML =
-        "";
-
-
-      const errorMessage =
-        document.createElement(
-          "p"
-        );
-
-
-      errorMessage.textContent =
-        "Task 1 image could not be loaded.";
-
-
-      errorMessage.style.padding =
-        "20px";
-
-
-      errorMessage.style.textAlign =
-        "center";
-
-
-      errorMessage.style.color =
-        "#d9534f";
-
-
-      imageContainer.appendChild(
-        errorMessage
-      );
+      image.remove();
 
     };
 
 
-  // ----------------------------------------------------------
-  // Add image
-  // ----------------------------------------------------------
-
-  imageContainer.appendChild(
-    image
-  );
-
-
-  // ----------------------------------------------------------
-  // Insert image AFTER question
-  // ----------------------------------------------------------
-
-  task1Element.insertAdjacentElement(
+  questionElement.insertAdjacentElement(
     "afterend",
-    imageContainer
+    image
   );
 
 }
@@ -1020,6 +963,7 @@ function switchTask(
       taskNumber === 1
         ? "block"
         : "none";
+
   }
 
 
@@ -1029,6 +973,7 @@ function switchTask(
       taskNumber === 2
         ? "block"
         : "none";
+
   }
 
 
@@ -1038,6 +983,7 @@ function switchTask(
       "active",
       taskNumber === 1
     );
+
   }
 
 
@@ -1047,13 +993,14 @@ function switchTask(
       "active",
       taskNumber === 2
     );
+
   }
 
 }
 
 
 // ============================================================
-// WORD COUNT
+// COUNT WORDS
 // ============================================================
 
 function countWords(
@@ -1067,14 +1014,13 @@ function countWords(
 
   return text
     .trim()
-    .split(
-      /\s+/
-    )
+    .split(/\s+/)
     .filter(
       word =>
         word.length > 0
     )
     .length;
+
 }
 
 
@@ -1102,7 +1048,9 @@ function updateWordCount(
     !textarea ||
     !counter
   ) {
+
     return;
+
   }
 
 
@@ -1141,8 +1089,7 @@ function updateWordCount(
 // START TIMER
 // ============================================================
 //
-// IELTS Writing = 60 minutes total.
-//
+// IELTS Writing = 60 minutes.
 // ============================================================
 
 function startTimer() {
@@ -1194,7 +1141,6 @@ function startTimer() {
         ) {
 
           stopTimer();
-
 
           autoSubmitWritingTest();
 
@@ -1271,6 +1217,7 @@ function stopTimer() {
 
     timerInterval =
       null;
+
   }
 
 }
@@ -1297,6 +1244,23 @@ async function autoSubmitWritingTest() {
 // ============================================================
 // SUBMIT WRITING TEST
 // ============================================================
+//
+// No AI grading.
+//
+// The answers are sent to Apps Script.
+//
+// Apps Script stores:
+//
+// Username
+// Task1
+// Task2
+// Score
+// Band
+// Writing1
+// Writing2
+//
+// Score and Band remain blank.
+// ============================================================
 
 async function submitWritingTest(
   automatic = false
@@ -1318,6 +1282,7 @@ async function submitWritingTest(
     );
 
     return;
+
   }
 
 
@@ -1343,6 +1308,7 @@ async function submitWritingTest(
     );
 
     return;
+
   }
 
 
@@ -1354,85 +1320,153 @@ async function submitWritingTest(
     task2AnswerElement.value.trim();
 
 
+  const task1Words =
+    countWords(
+      task1Answer
+    );
+
+
+  const task2Words =
+    countWords(
+      task2Answer
+    );
+
+
+  // ==========================================================
+  // MANUAL SUBMISSION
+  // ==========================================================
+
   if (!automatic) {
 
-    const task1Words =
-      countWords(
-        task1Answer
-      );
-
-
-    const task2Words =
-      countWords(
-        task2Answer
-      );
-
-
-    if (!task1Answer) {
-
-      showError(
-        "Please write your Task 1 answer."
-      );
-
-
-      switchTask(1);
-
-
-      return;
-    }
-
-
-    if (!task2Answer) {
-
-      showError(
-        "Please write your Task 2 answer."
-      );
-
-
-      switchTask(2);
-
-
-      return;
-    }
-
+    // --------------------------------------------------------
+    // BOTH EMPTY
+    // --------------------------------------------------------
 
     if (
-      task1Words < 150
+      !task1Answer &&
+      !task2Answer
     ) {
 
-      const continueAnyway =
+      const confirmed =
         confirm(
-          `Task 1 has only ${task1Words} words. IELTS Task 1 requires at least 150 words.\n\nSubmit anyway?`
+          "Both Task 1 and Task 2 are empty.\n\nAre you sure you want to submit your Writing test?"
         );
 
 
-      if (!continueAnyway) {
+      if (!confirmed) {
+
+        return;
+
+      }
+
+    }
+
+
+    // --------------------------------------------------------
+    // TASK 1 EMPTY
+    // --------------------------------------------------------
+
+    else if (
+      !task1Answer
+    ) {
+
+      const confirmed =
+        confirm(
+          "Task 1 is empty.\n\nAre you sure you want to submit your Writing test?"
+        );
+
+
+      if (!confirmed) {
 
         switchTask(1);
 
         return;
+
       }
+
     }
 
 
-    if (
-      task2Words < 250
+    // --------------------------------------------------------
+    // TASK 2 EMPTY
+    // --------------------------------------------------------
+
+    else if (
+      !task2Answer
     ) {
 
-      const continueAnyway =
+      const confirmed =
         confirm(
-          `Task 2 has only ${task2Words} words. IELTS Task 2 requires at least 250 words.\n\nSubmit anyway?`
+          "Task 2 is empty.\n\nAre you sure you want to submit your Writing test?"
         );
 
 
-      if (!continueAnyway) {
+      if (!confirmed) {
 
         switchTask(2);
 
         return;
+
       }
+
     }
 
+
+    // --------------------------------------------------------
+    // TASK 1 WORD COUNT
+    // --------------------------------------------------------
+
+    if (
+      task1Answer &&
+      task1Words < 150
+    ) {
+
+      const confirmed =
+        confirm(
+          `Task 1 has only ${task1Words} words.\n\nIELTS Task 1 requires at least 150 words.\n\nSubmit anyway?`
+        );
+
+
+      if (!confirmed) {
+
+        switchTask(1);
+
+        return;
+
+      }
+
+    }
+
+
+    // --------------------------------------------------------
+    // TASK 2 WORD COUNT
+    // --------------------------------------------------------
+
+    if (
+      task2Answer &&
+      task2Words < 250
+    ) {
+
+      const confirmed =
+        confirm(
+          `Task 2 has only ${task2Words} words.\n\nIELTS Task 2 requires at least 250 words.\n\nSubmit anyway?`
+        );
+
+
+      if (!confirmed) {
+
+        switchTask(2);
+
+        return;
+
+      }
+
+    }
+
+
+    // --------------------------------------------------------
+    // FINAL CONFIRMATION
+    // --------------------------------------------------------
 
     const confirmed =
       confirm(
@@ -1441,11 +1475,17 @@ async function submitWritingTest(
 
 
     if (!confirmed) {
+
       return;
+
     }
 
   }
 
+
+  // ==========================================================
+  // SUBMISSION START
+  // ==========================================================
 
   isSubmitting =
     true;
@@ -1458,40 +1498,42 @@ async function submitWritingTest(
 
     setLoading(
       true,
-      "AI is grading your Writing..."
+      "Saving your Writing..."
     );
 
+
+    // --------------------------------------------------------
+    // SEND TO GOOGLE APPS SCRIPT
+    // --------------------------------------------------------
 
     const response =
       await fetch(
         API_URL,
         {
-          method: "POST",
+
+          method:
+            "POST",
 
           headers: {
+
             "Content-Type":
               "text/plain;charset=utf-8"
+
           },
 
           body:
             JSON.stringify({
 
               action:
-                "scoreWriting",
+                "saveWriting",
 
               data: {
 
                 username:
                   username,
 
-                task1Question:
-                  task1Question,
-
                 task1Answer:
                   task1Answer,
-
-                task2Question:
-                  task2Question,
 
                 task2Answer:
                   task2Answer
@@ -1504,17 +1546,30 @@ async function submitWritingTest(
       );
 
 
+    // --------------------------------------------------------
+    // HTTP ERROR
+    // --------------------------------------------------------
+
     if (!response.ok) {
 
       throw new Error(
-        `Server returned HTTP ${response.status}.`
+        `Server error: ${response.status}`
       );
+
     }
 
+
+    // --------------------------------------------------------
+    // READ JSON RESPONSE
+    // --------------------------------------------------------
 
     const result =
       await response.json();
 
+
+    // --------------------------------------------------------
+    // BACKEND ERROR
+    // --------------------------------------------------------
 
     if (
       !result.success
@@ -1524,10 +1579,15 @@ async function submitWritingTest(
         result.message ||
         "Writing submission failed."
       );
+
     }
 
 
-    displayResult(
+    // --------------------------------------------------------
+    // SUCCESS
+    // --------------------------------------------------------
+
+    displaySubmissionResult(
       result.result
     );
 
@@ -1542,7 +1602,7 @@ async function submitWritingTest(
 
     showError(
       error.message ||
-      "Unable to submit your Writing test."
+      "Unable to save your Writing test."
     );
 
 
@@ -1550,19 +1610,19 @@ async function submitWritingTest(
       false;
 
 
+    // Restart timer if submission failed.
     if (
-      testStartTime
+      testStartTime &&
+      !automatic
     ) {
 
       startTimer();
-    }
 
+    }
 
   } finally {
 
-    setLoading(
-      false
-    );
+    setLoading(false);
 
   }
 
@@ -1570,10 +1630,22 @@ async function submitWritingTest(
 
 
 // ============================================================
-// DISPLAY RESULT
+// DISPLAY SUBMISSION RESULT
+// ============================================================
+//
+// There is NO automatic score.
+//
+// The student sees:
+//
+// Task 1: Pending
+// Task 2: Pending
+// Score: Pending
+// Band: Pending
+//
+// The teacher can later enter Score and Band.
 // ============================================================
 
-function displayResult(
+function displaySubmissionResult(
   result
 ) {
 
@@ -1604,70 +1676,38 @@ function displayResult(
   if (task1Score) {
 
     task1Score.textContent =
-      formatBand(
-        result.task1
-      );
+      "Pending";
+
   }
 
 
   if (task2Score) {
 
     task2Score.textContent =
-      formatBand(
-        result.task2
-      );
+      "Pending";
+
   }
 
 
   if (score) {
 
     score.textContent =
-      formatBand(
-        result.score
-      );
+      "Pending";
+
   }
 
 
   if (band) {
 
     band.textContent =
-      formatBand(
-        result.band
-      );
+      "Pending";
+
   }
 
 
   showScreen(
     "resultScreen"
   );
-
-}
-
-
-// ============================================================
-// FORMAT BAND
-// ============================================================
-
-function formatBand(
-  value
-) {
-
-  const number =
-    Number(value);
-
-
-  if (
-    Number.isNaN(
-      number
-    )
-  ) {
-
-    return value;
-  }
-
-
-  return number
-    .toFixed(1);
 
 }
 
@@ -1712,18 +1752,6 @@ function backToSetup() {
     "";
 
 
-  const imageContainer =
-    document.getElementById(
-      "task1ImageContainer"
-    );
-
-
-  if (imageContainer) {
-
-    imageContainer.remove();
-  }
-
-
   showScreen(
     "setupScreen"
   );
@@ -1760,7 +1788,7 @@ function showScreen(
 
 
 // ============================================================
-// LOADING
+// LOADING OVERLAY
 // ============================================================
 
 function setLoading(
@@ -1790,6 +1818,7 @@ function setLoading(
     messageElement.textContent =
       message ||
       "Loading...";
+
   }
 
 
@@ -1842,6 +1871,7 @@ function showError(
 
 
     return;
+
   }
 
 
@@ -1853,7 +1883,7 @@ function showError(
 
 
 // ============================================================
-// EXPORT GLOBAL FUNCTIONS
+// GLOBAL FUNCTIONS
 // ============================================================
 
 window.startSelectedTest =
