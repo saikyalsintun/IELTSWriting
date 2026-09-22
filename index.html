@@ -1,0 +1,668 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>IELTS Writing Practice</title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+<body>
+
+  <!-- ======================================================
+       HEADER
+       ====================================================== -->
+
+  <header class="top-header">
+
+    <div class="header-inner">
+
+      <div class="brand">
+        <div class="brand-title">
+          IELTS Writing
+        </div>
+
+        <div class="brand-subtitle">
+          Academic Writing Practice
+        </div>
+      </div>
+
+      <div class="header-right">
+
+        <div
+          id="timerContainer"
+          class="timer-container"
+        >
+
+          <span class="timer-label">
+            Time
+          </span>
+
+          <span
+            id="timer"
+            class="timer"
+          >
+            60:00
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- ======================================================
+       MAIN
+       ====================================================== -->
+
+  <main class="main-container">
+
+
+    <!-- ====================================================
+         SETUP SCREEN
+         ==================================================== -->
+
+    <section
+      id="setupScreen"
+      class="screen setup-screen"
+    >
+
+      <div class="setup-card">
+
+        <div class="setup-icon">
+          ✎
+        </div>
+
+        <h1>
+          IELTS Writing Practice
+        </h1>
+
+        <p class="setup-description">
+          Complete Task 1 and Task 2 under IELTS Writing
+          conditions.
+        </p>
+
+
+        <!-- USERNAME -->
+
+        <div class="form-group">
+
+          <label for="username">
+            Username
+          </label>
+
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your username"
+            autocomplete="username"
+          >
+
+        </div>
+
+
+        <!-- TEST SELECT -->
+
+        <div class="form-group">
+
+          <label for="testSelect">
+            Select Test
+          </label>
+
+          <select id="testSelect">
+          </select>
+
+        </div>
+
+
+        <!-- TEST INFORMATION -->
+
+        <div class="test-information">
+
+          <div class="info-item">
+
+            <span class="info-label">
+              Task 1
+            </span>
+
+            <span class="info-value">
+              150+ words
+            </span>
+
+          </div>
+
+          <div class="info-item">
+
+            <span class="info-label">
+              Task 2
+            </span>
+
+            <span class="info-value">
+              250+ words
+            </span>
+
+          </div>
+
+          <div class="info-item">
+
+            <span class="info-label">
+              Total Time
+            </span>
+
+            <span class="info-value">
+              60 minutes
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- START BUTTON -->
+
+        <button
+          id="startTestBtn"
+          class="primary-button start-button"
+        >
+          Start Test
+        </button>
+
+
+        <!-- ERROR -->
+
+        <div
+          id="errorMessage"
+          class="error-message"
+          style="display:none;"
+        ></div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ====================================================
+         TEST SCREEN
+         ==================================================== -->
+
+    <section
+      id="testScreen"
+      class="screen test-screen"
+      style="display:none;"
+    >
+
+      <!-- TEST HEADER -->
+
+      <div class="test-header">
+
+        <div>
+
+          <h1 id="testTitle">
+            IELTS Writing Test
+          </h1>
+
+          <p>
+            Write your answers carefully.
+          </p>
+
+        </div>
+
+        <button
+          id="backBtn"
+          class="secondary-button"
+        >
+          Exit Test
+        </button>
+
+      </div>
+
+
+      <!-- TASK TABS -->
+
+      <div class="task-tabs">
+
+        <button
+          id="task1Tab"
+          class="task-tab active"
+        >
+          Task 1
+          <span>
+            150+ words
+          </span>
+        </button>
+
+        <button
+          id="task2Tab"
+          class="task-tab"
+        >
+          Task 2
+          <span>
+            250+ words
+          </span>
+        </button>
+
+      </div>
+
+
+      <!-- ==================================================
+           TASK 1
+           ================================================== -->
+
+      <div
+        id="task1Panel"
+        class="task-panel"
+      >
+
+        <div class="writing-layout">
+
+
+          <!-- QUESTION -->
+
+          <div class="question-panel">
+
+            <div class="panel-header">
+
+              <span class="panel-title">
+                Task 1
+              </span>
+
+              <span class="panel-badge">
+                Academic
+              </span>
+
+            </div>
+
+            <div class="question-content">
+
+              <div class="instruction-box">
+
+                <strong>
+                  Instructions
+                </strong>
+
+                <p>
+                  You should spend about 20 minutes on this task.
+                </p>
+
+                <p>
+                  Write at least 150 words.
+                </p>
+
+              </div>
+
+              <div
+                id="task1Question"
+                class="question-text"
+              >
+                Loading question...
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ANSWER -->
+
+          <div class="answer-panel">
+
+            <div class="panel-header">
+
+              <span class="panel-title">
+                Your Answer
+              </span>
+
+              <span class="word-count-wrapper">
+
+                <span
+                  id="task1WordCount"
+                  class="word-count"
+                >
+                  0
+                </span>
+
+                <span>
+                  words
+                </span>
+
+              </span>
+
+            </div>
+
+            <textarea
+              id="task1Answer"
+              class="answer-textarea"
+              placeholder="Write your Task 1 answer here..."
+              spellcheck="true"
+            ></textarea>
+
+            <div class="answer-footer">
+
+              <span>
+                Minimum recommended:
+                <strong>150 words</strong>
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- ==================================================
+           TASK 2
+           ================================================== -->
+
+      <div
+        id="task2Panel"
+        class="task-panel"
+        style="display:none;"
+      >
+
+        <div class="writing-layout">
+
+
+          <!-- QUESTION -->
+
+          <div class="question-panel">
+
+            <div class="panel-header">
+
+              <span class="panel-title">
+                Task 2
+              </span>
+
+              <span class="panel-badge">
+                Academic
+              </span>
+
+            </div>
+
+            <div class="question-content">
+
+              <div class="instruction-box">
+
+                <strong>
+                  Instructions
+                </strong>
+
+                <p>
+                  You should spend about 40 minutes on this task.
+                </p>
+
+                <p>
+                  Write at least 250 words.
+                </p>
+
+              </div>
+
+              <div
+                id="task2Question"
+                class="question-text"
+              >
+                Loading question...
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ANSWER -->
+
+          <div class="answer-panel">
+
+            <div class="panel-header">
+
+              <span class="panel-title">
+                Your Answer
+              </span>
+
+              <span class="word-count-wrapper">
+
+                <span
+                  id="task2WordCount"
+                  class="word-count"
+                >
+                  0
+                </span>
+
+                <span>
+                  words
+                </span>
+
+              </span>
+
+            </div>
+
+            <textarea
+              id="task2Answer"
+              class="answer-textarea"
+              placeholder="Write your Task 2 answer here..."
+              spellcheck="true"
+            ></textarea>
+
+            <div class="answer-footer">
+
+              <span>
+                Minimum recommended:
+                <strong>250 words</strong>
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- SUBMIT -->
+
+      <div class="submit-section">
+
+        <div class="submit-information">
+
+          <strong>
+            Before submitting
+          </strong>
+
+          <span>
+            Make sure you have completed both Task 1 and Task 2.
+          </span>
+
+        </div>
+
+        <button
+          id="submitTestBtn"
+          class="primary-button submit-button"
+        >
+          Submit Writing Test
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ====================================================
+         RESULT SCREEN
+         ==================================================== -->
+
+    <section
+      id="resultScreen"
+      class="screen result-screen"
+      style="display:none;"
+    >
+
+      <div class="result-card">
+
+        <div class="result-icon">
+          ✓
+        </div>
+
+        <h1>
+          Writing Test Completed
+        </h1>
+
+        <p class="result-description">
+          Your answers have been evaluated.
+        </p>
+
+
+        <!-- SCORE GRID -->
+
+        <div class="score-grid">
+
+
+          <div class="score-box">
+
+            <span class="score-label">
+              Task 1
+            </span>
+
+            <span
+              id="resultTask1"
+              class="score-value"
+            >
+              -
+            </span>
+
+          </div>
+
+
+          <div class="score-box">
+
+            <span class="score-label">
+              Task 2
+            </span>
+
+            <span
+              id="resultTask2"
+              class="score-value"
+            >
+              -
+            </span>
+
+          </div>
+
+
+          <div class="score-box highlight">
+
+            <span class="score-label">
+              Writing Score
+            </span>
+
+            <span
+              id="resultScore"
+              class="score-value"
+            >
+              -
+            </span>
+
+          </div>
+
+
+          <div class="score-box highlight">
+
+            <span class="score-label">
+              Band
+            </span>
+
+            <span
+              id="resultBand"
+              class="score-value"
+            >
+              -
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="result-note">
+
+          <strong>
+            Your result has been saved.
+          </strong>
+
+          <p>
+            Task 2 is weighted twice as much as Task 1 when
+            calculating the overall Writing score.
+          </p>
+
+        </div>
+
+
+        <button
+          class="primary-button"
+          onclick="location.reload()"
+        >
+          Take Another Test
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- ======================================================
+       LOADING OVERLAY
+       ====================================================== -->
+
+  <div
+    id="loadingOverlay"
+    class="loading-overlay"
+    style="display:none;"
+  >
+
+    <div class="loading-card">
+
+      <div class="spinner"></div>
+
+      <h3 id="loadingMessage">
+        Loading...
+      </h3>
+
+      <p>
+        Please wait.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ======================================================
+       JAVASCRIPT
+       ====================================================== -->
+
+  <script src="app.js"></script>
+
+</body>
+</html>
+```
