@@ -22,6 +22,8 @@ let task1Question = "";
 
 let task2Question = "";
 
+let task1Image = "";
+
 let testStartTime = null;
 
 let timerInterval = null;
@@ -141,9 +143,7 @@ function setupEventListeners() {
       "click",
       function () {
 
-        switchTask(
-          1
-        );
+        switchTask(1);
 
       }
     );
@@ -156,9 +156,7 @@ function setupEventListeners() {
       "click",
       function () {
 
-        switchTask(
-          2
-        );
+        switchTask(2);
 
       }
     );
@@ -186,9 +184,7 @@ function setupEventListeners() {
       "input",
       function () {
 
-        updateWordCount(
-          1
-        );
+        updateWordCount(1);
 
       }
     );
@@ -201,9 +197,7 @@ function setupEventListeners() {
       "input",
       function () {
 
-        updateWordCount(
-          2
-        );
+        updateWordCount(2);
 
       }
     );
@@ -228,7 +222,6 @@ function loadUsername() {
   }
 
 
-  // Try common localStorage keys
   const possibleKeys = [
 
     "username",
@@ -347,8 +340,6 @@ function getUsername() {
 // ============================================================
 // POPULATE TEST LIST
 // ============================================================
-//
-// Only tests that actually have JSON files should appear.
 //
 // Test1.json -> Test 1
 // Test2.json -> Test 2
@@ -552,6 +543,7 @@ async function startSelectedTest() {
       "Unable to load the test."
     );
 
+
   } finally {
 
     setLoading(
@@ -566,11 +558,12 @@ async function startSelectedTest() {
 // EXTRACT QUESTIONS
 // ============================================================
 //
-// Supports a few common JSON structures:
+// Supports:
 //
 // {
 //   "task1": {
-//      "question": "..."
+//      "question": "...",
+//      "image": "Writing/Images/Test1.png"
 //   },
 //   "task2": {
 //      "question": "..."
@@ -600,6 +593,25 @@ function extractQuestions(
     extractQuestion(
       test.task2
     );
+
+
+  // ----------------------------------------------------------
+  // GET TASK 1 IMAGE
+  // ----------------------------------------------------------
+
+  task1Image = "";
+
+
+  if (
+    test &&
+    test.task1 &&
+    typeof test.task1 === "object" &&
+    typeof test.task1.image === "string"
+  ) {
+
+    task1Image =
+      test.task1.image.trim();
+  }
 
 
   if (!task1Question) {
@@ -722,7 +734,17 @@ function displayTest() {
   }
 
 
-  // Reset answers
+  // ----------------------------------------------------------
+  // DISPLAY TASK 1 IMAGE
+  // ----------------------------------------------------------
+
+  displayTask1Image();
+
+
+  // ----------------------------------------------------------
+  // RESET ANSWERS
+  // ----------------------------------------------------------
+
   const task1Answer =
     document.getElementById(
       "task1Answer"
@@ -749,17 +771,15 @@ function displayTest() {
   }
 
 
-  updateWordCount(
-    1
-  );
+  updateWordCount(1);
+
+  updateWordCount(2);
 
 
-  updateWordCount(
-    2
-  );
+  // ----------------------------------------------------------
+  // UPDATE TEST TITLE
+  // ----------------------------------------------------------
 
-
-  // Update test title
   const title =
     document.getElementById(
       "testTitle"
@@ -772,6 +792,192 @@ function displayTest() {
       "IELTS Writing Test " +
       currentTestNumber;
   }
+
+}
+
+
+// ============================================================
+// DISPLAY TASK 1 IMAGE
+// ============================================================
+//
+// This creates the image container automatically.
+// No HTML change is required.
+//
+// Example JSON:
+//
+// "image": "Writing/Images/Test1.png"
+//
+// ============================================================
+
+function displayTask1Image() {
+
+  const task1Element =
+    document.getElementById(
+      "task1Question"
+    );
+
+
+  if (!task1Element) {
+    return;
+  }
+
+
+  // ----------------------------------------------------------
+  // Remove old image container
+  // ----------------------------------------------------------
+
+  const oldContainer =
+    document.getElementById(
+      "task1ImageContainer"
+    );
+
+
+  if (oldContainer) {
+
+    oldContainer.remove();
+  }
+
+
+  // ----------------------------------------------------------
+  // If there is no image, stop
+  // ----------------------------------------------------------
+
+  if (!task1Image) {
+    return;
+  }
+
+
+  // ----------------------------------------------------------
+  // Create image container
+  // ----------------------------------------------------------
+
+  const imageContainer =
+    document.createElement(
+      "div"
+    );
+
+
+  imageContainer.id =
+    "task1ImageContainer";
+
+
+  imageContainer.style.width =
+    "100%";
+
+
+  imageContainer.style.margin =
+    "20px 0";
+
+
+  imageContainer.style.textAlign =
+    "center";
+
+
+  // ----------------------------------------------------------
+  // Create image
+  // ----------------------------------------------------------
+
+  const image =
+    document.createElement(
+      "img"
+    );
+
+
+  image.src =
+    task1Image;
+
+
+  image.alt =
+    "IELTS Writing Task 1 chart";
+
+
+  image.style.display =
+    "block";
+
+
+  image.style.maxWidth =
+    "100%";
+
+
+  image.style.height =
+    "auto";
+
+
+  image.style.margin =
+    "0 auto";
+
+
+  image.style.borderRadius =
+    "8px";
+
+
+  image.style.objectFit =
+    "contain";
+
+
+  // ----------------------------------------------------------
+  // Image error
+  // ----------------------------------------------------------
+
+  image.onerror =
+    function () {
+
+      console.error(
+        "Task 1 image could not be loaded:",
+        task1Image
+      );
+
+
+      imageContainer.innerHTML =
+        "";
+
+
+      const errorMessage =
+        document.createElement(
+          "p"
+        );
+
+
+      errorMessage.textContent =
+        "Task 1 image could not be loaded.";
+
+
+      errorMessage.style.padding =
+        "20px";
+
+
+      errorMessage.style.textAlign =
+        "center";
+
+
+      errorMessage.style.color =
+        "#d9534f";
+
+
+      imageContainer.appendChild(
+        errorMessage
+      );
+
+    };
+
+
+  // ----------------------------------------------------------
+  // Add image
+  // ----------------------------------------------------------
+
+  imageContainer.appendChild(
+    image
+  );
+
+
+  // ----------------------------------------------------------
+  // Insert image AFTER question
+  // ----------------------------------------------------------
+
+  task1Element.insertAdjacentElement(
+    "afterend",
+    imageContainer
+  );
 
 }
 
@@ -865,7 +1071,8 @@ function countWords(
       /\s+/
     )
     .filter(
-      word => word.length > 0
+      word =>
+        word.length > 0
     )
     .length;
 }
@@ -891,7 +1098,10 @@ function updateWordCount(
     );
 
 
-  if (!textarea || !counter) {
+  if (
+    !textarea ||
+    !counter
+  ) {
     return;
   }
 
@@ -906,7 +1116,6 @@ function updateWordCount(
     words;
 
 
-  // Optional minimum-word status
   const minimum =
     taskNumber === 1
       ? 150
@@ -1059,6 +1268,7 @@ function stopTimer() {
       timerInterval
     );
 
+
     timerInterval =
       null;
   }
@@ -1164,9 +1374,9 @@ async function submitWritingTest(
         "Please write your Task 1 answer."
       );
 
-      switchTask(
-        1
-      );
+
+      switchTask(1);
+
 
       return;
     }
@@ -1178,9 +1388,9 @@ async function submitWritingTest(
         "Please write your Task 2 answer."
       );
 
-      switchTask(
-        2
-      );
+
+      switchTask(2);
+
 
       return;
     }
@@ -1198,9 +1408,7 @@ async function submitWritingTest(
 
       if (!continueAnyway) {
 
-        switchTask(
-          1
-        );
+        switchTask(1);
 
         return;
       }
@@ -1219,9 +1427,7 @@ async function submitWritingTest(
 
       if (!continueAnyway) {
 
-        switchTask(
-          2
-        );
+        switchTask(2);
 
         return;
       }
@@ -1260,15 +1466,11 @@ async function submitWritingTest(
       await fetch(
         API_URL,
         {
-
-          method:
-            "POST",
+          method: "POST",
 
           headers: {
-
             "Content-Type":
               "text/plain;charset=utf-8"
-
           },
 
           body:
@@ -1282,8 +1484,6 @@ async function submitWritingTest(
                 username:
                   username,
 
-                // These are loaded from
-                // Writing/TestX.json
                 task1Question:
                   task1Question,
 
@@ -1302,6 +1502,14 @@ async function submitWritingTest(
 
         }
       );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `Server returned HTTP ${response.status}.`
+      );
+    }
 
 
     const result =
@@ -1338,14 +1546,10 @@ async function submitWritingTest(
     );
 
 
-    // If submission failed, allow
-    // the user to try again.
     isSubmitting =
       false;
 
 
-    // Restart timer if there is
-    // still time remaining.
     if (
       testStartTime
     ) {
@@ -1504,6 +1708,22 @@ function backToSetup() {
     "";
 
 
+  task1Image =
+    "";
+
+
+  const imageContainer =
+    document.getElementById(
+      "task1ImageContainer"
+    );
+
+
+  if (imageContainer) {
+
+    imageContainer.remove();
+  }
+
+
   showScreen(
     "setupScreen"
   );
@@ -1634,14 +1854,6 @@ function showError(
 
 // ============================================================
 // EXPORT GLOBAL FUNCTIONS
-// ============================================================
-//
-// Useful if your HTML currently uses:
-//
-// onclick="startSelectedTest()"
-// onclick="submitWritingTest()"
-// onclick="switchTask(1)"
-//
 // ============================================================
 
 window.startSelectedTest =
